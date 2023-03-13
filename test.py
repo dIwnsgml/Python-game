@@ -4,27 +4,35 @@ import keyboard
 
 MAGNIFICATION = 10
 character_img = 0
-
+character_dir = 1
 def move_left():
+    global character_img
+    global character_dir
+    
+    char_shape = './Img/character/left/frame_' + str(character_img % 6) + '.gif'
+    turtle.shape(char_shape)
     canvas.xview_scroll(-1, "units")
     turtle.setx(turtle.xcor() - MAGNIFICATION)
+    character_img += 1
+    character_dir = -1
 
 def move_right():
     global character_img
-    print( chr(character_img))
-    print('./Img/character/frame_' + str(character_img) + '.gif')
-    char_shape = './Img/character/frame_' + str(character_img) + '.gif'
-    print(char_shape)
+    global character_dir
+    
+    char_shape = './Img/character/right/frame_' + str(character_img % 6) + '.gif'
     turtle.shape(char_shape)
     canvas.xview_scroll(1, "units")
     turtle.setx(turtle.xcor() + MAGNIFICATION)
     character_img += 1
+    character_dir = -1
 
 def move_up():
     canvas.yview_scroll(-1, "units")
     turtle.sety(turtle.ycor() + MAGNIFICATION)
 
 def jump():
+    global character_dir
     if keyboard.is_pressed('Left'):
         print("a")
         canvas.xview_scroll(-2, "units")
@@ -34,6 +42,7 @@ def jump():
         canvas.xview_scroll(-3, "units")
         turtle.sety(turtle.ycor() - 100)
         canvas.xview_scroll(-3, "units")
+        character_dir = -1
     elif keyboard.is_pressed("Right"):
         print("b")
         canvas.xview_scroll(2, "units")
@@ -42,7 +51,12 @@ def jump():
         turtle.setx(turtle.xcor() + 100)
         canvas.xview_scroll(3, "units")
         turtle.sety(turtle.ycor() - 100)
+        """ turtle.setheading(-90)
+        turtle.speed(10)
+        turtle.circle(50, -180)
+        turtle.speed(1) """
         canvas.xview_scroll(3, "units")
+        character_dir = 1
     else:
         print("x")
         turtle.sety(turtle.ycor() + 100)
@@ -58,6 +72,18 @@ def move_down():
     canvas.yview_scroll(1, "units")
     turtle.sety(turtle.ycor() - MAGNIFICATION)
 
+def shoot():
+    shooting_animation = 0
+    print("shoot")
+    if(character_dir == 1):
+      char_shape = './Img/character/shooting/right/frame_'
+    else:
+      char_shape = './Img/character/shooting/left/frame_'
+    for i in range(3):
+      char_shape += str(i) + '.gif'
+      turtle.shape(char_shape)
+    
+
 screen = Screen()
 width, height = screen.screensize()
 screen.screensize(10000, 800)
@@ -67,24 +93,38 @@ canvas.config(xscrollincrement=str(MAGNIFICATION))
 canvas.config(yscrollincrement=str(MAGNIFICATION))
 
 # turtle initialization
-screen.addshape("./Img/character/frame_0.gif")
-screen.addshape("./Img/character/frame_1.gif")
-screen.addshape("./Img/character/frame_2.gif")
-screen.addshape("./Img/character/frame_3.gif")
-screen.addshape("./Img/character/frame_4.gif")
-screen.addshape("./Img/character/frame_5.gif")
+screen.addshape("./Img/character/right/frame_0.gif")
+screen.addshape("./Img/character/right/frame_1.gif")
+screen.addshape("./Img/character/right/frame_2.gif")
+screen.addshape("./Img/character/right/frame_3.gif")
+screen.addshape("./Img/character/right/frame_4.gif")
+screen.addshape("./Img/character/right/frame_5.gif")
+screen.addshape("./Img/character/left/frame_0.gif")
+screen.addshape("./Img/character/left/frame_1.gif")
+screen.addshape("./Img/character/left/frame_2.gif")
+screen.addshape("./Img/character/left/frame_3.gif")
+screen.addshape("./Img/character/left/frame_4.gif")
+screen.addshape("./Img/character/left/frame_5.gif")
+screen.addshape("./Img/character/shooting/left/frame_0.gif")
+screen.addshape("./Img/character/shooting/left/frame_1.gif")
+screen.addshape("./Img/character/shooting/left/frame_2.gif")
+screen.addshape("./Img/character/shooting/left/frame_3.gif")
+screen.addshape("./Img/character/shooting/right/frame_0.gif")
+screen.addshape("./Img/character/shooting/right/frame_1.gif")
+screen.addshape("./Img/character/shooting/right/frame_2.gif")
+screen.addshape("./Img/character/shooting/right/frame_3.gif")
 turtle = Turtle("turtle", visible=False)
-turtle.shape('./Img/character/frame_0.gif')
+turtle.shape('./Img/character/right/frame_0.gif')
 turtle.width(MAGNIFICATION)
 turtle.resizemode('auto')
-
+turtle.speed(3)
 ### Generate a landscape to explore
 
 screen.tracer(False)
 
 RULES = {'x':'x+yf+', 'y':'-fx-y', 'f':'f', '+':'+', '-':'-'}
 sub_string = string = "fx"
-LEVEL = 13
+LEVEL = 1
 
 for _ in range(LEVEL):
 
@@ -118,6 +158,7 @@ screen.onkeypress(move_left, "Left")
 screen.onkeypress(move_right, "Right")
 screen.onkeypress(jump, "Up")
 screen.onkey(move_down, "Down")
+screen.onkeypress(shoot,"space")
 screen.listen()
 
 screen.mainloop()
