@@ -80,7 +80,7 @@ def shoot():
     else:
       char_shape = './Img/character/shooting/left/frame_'
     for i in range(3):
-      char_shape += str(i) + '.gif'
+      char_shape += str( i) + '.gif'
       turtle.shape(char_shape)
     
 
