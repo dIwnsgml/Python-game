@@ -1,90 +1,18 @@
-from turtle import Turtle, Screen
+import turtle as trtl
 from random import random
 import keyboard
+import sys
+import time
+""" sys.setrecursionlimit(100000) """
+sys.setrecursionlimit(100)
+from border import create_border
+from gravity import create_gravity
 
 MAGNIFICATION = 10
 character_img = 0
 character_dir = 1
-def move_left():
-    global character_img
-    global character_dir
-    
-    char_shape = './Img/character/left/frame_' + str(character_img % 6) + '.gif'
-    turtle.shape(char_shape)
-    canvas.xview_scroll(-1, "units")
-    turtle.setx(turtle.xcor() - MAGNIFICATION)
-    character_img += 1
-    character_dir = -1
 
-def move_right():
-    global character_img
-    global character_dir
-    
-    char_shape = './Img/character/right/frame_' + str(character_img % 6) + '.gif'
-    turtle.shape(char_shape)
-    canvas.xview_scroll(1, "units")
-    turtle.setx(turtle.xcor() + MAGNIFICATION)
-    character_img += 1
-    character_dir = -1
-
-def move_up():
-    canvas.yview_scroll(-1, "units")
-    turtle.sety(turtle.ycor() + MAGNIFICATION)
-
-def jump():
-    global character_dir
-    if keyboard.is_pressed('Left'):
-        print("a")
-        canvas.xview_scroll(-2, "units")
-        turtle.sety(turtle.ycor() + 100)
-        canvas.xview_scroll(-2, "units")
-        turtle.setx(turtle.xcor() - 100)
-        canvas.xview_scroll(-3, "units")
-        turtle.sety(turtle.ycor() - 100)
-        canvas.xview_scroll(-3, "units")
-        character_dir = -1
-    elif keyboard.is_pressed("Right"):
-        print("b")
-        canvas.xview_scroll(2, "units")
-        turtle.sety(turtle.ycor() + 100)
-        canvas.xview_scroll(2, "units")
-        turtle.setx(turtle.xcor() + 100)
-        canvas.xview_scroll(3, "units")
-        turtle.sety(turtle.ycor() - 100)
-        """ turtle.setheading(-90)
-        turtle.speed(10)
-        turtle.circle(50, -180)
-        turtle.speed(1) """
-        canvas.xview_scroll(3, "units")
-        character_dir = 1
-    else:
-        print("x")
-        turtle.sety(turtle.ycor() + 100)
-        turtle.sety(turtle.ycor() - 100)
-        canvas.yview_scroll(0, "units")
-    """ turtle.goto(turtle.xcor(), turtle.ycor() + 100)
-    turtle.goto(turtle.xcor(), turtle.ycor() - 100) """
-    """ turtle.sety(turtle.ycor() + 100)
-    turtle.setx(turtle.xcor() + move_x)
-    turtle.sety(turtle.ycor() - 100) """
-
-def move_down():
-    canvas.yview_scroll(1, "units")
-    turtle.sety(turtle.ycor() - MAGNIFICATION)
-
-def shoot():
-    shooting_animation = 0
-    print("shoot")
-    if(character_dir == 1):
-      char_shape = './Img/character/shooting/right/frame_'
-    else:
-      char_shape = './Img/character/shooting/left/frame_'
-    for i in range(3):
-      char_shape += str( i) + '.gif'
-      turtle.shape(char_shape)
-    
-
-screen = Screen()
+screen = trtl.Screen()
 width, height = screen.screensize()
 screen.screensize(10000, 800)
 
@@ -92,7 +20,7 @@ canvas = screen.getcanvas()
 canvas.config(xscrollincrement=str(MAGNIFICATION))
 canvas.config(yscrollincrement=str(MAGNIFICATION))
 
-# turtle initialization
+# character initialization
 screen.addshape("./Img/character/right/frame_0.gif")
 screen.addshape("./Img/character/right/frame_1.gif")
 screen.addshape("./Img/character/right/frame_2.gif")
@@ -113,51 +41,100 @@ screen.addshape("./Img/character/shooting/right/frame_0.gif")
 screen.addshape("./Img/character/shooting/right/frame_1.gif")
 screen.addshape("./Img/character/shooting/right/frame_2.gif")
 screen.addshape("./Img/character/shooting/right/frame_3.gif")
-turtle = Turtle("turtle", visible=False)
-turtle.shape('./Img/character/right/frame_0.gif')
-turtle.width(MAGNIFICATION)
-turtle.resizemode('auto')
-turtle.speed(3)
-### Generate a landscape to explore
 
-screen.tracer(False)
+character = trtl.Turtle()
+character.shape('./Img/character/right/frame_0.gif')
+character.width(MAGNIFICATION)
+character.resizemode('auto')
+character.speed(3)
 
-RULES = {'x':'x+yf+', 'y':'-fx-y', 'f':'f', '+':'+', '-':'-'}
-sub_string = string = "fx"
-LEVEL = 1
+character.penup()
 
-for _ in range(LEVEL):
+border = create_border()
+delay = False
+def move_left():
+    """ this line avoid event stacking """
+    screen.onkeypress(None, 'Left')
+    global character_img
+    global character_dir
+    character.shape('./Img/character/left/frame_' + str(character_img % 6) + '.gif')
+    canvas.xview_scroll(-1, "units")
+    character.forward(-10)
+    character_img += 1
+    character_dir = -1
+    create_gravity(border, character)
+    screen.onkeypress(move_left, 'Left')
+    
+    return 0
 
-    turtle.pencolor(random(), random(), random())
 
-    for character in sub_string:
-        if character == '+':
-            turtle.right(90)
-        elif character == '-':
-            turtle.left(90)
-        elif character == 'f':
-            turtle.forward(5 * MAGNIFICATION)
+def move_right():
+    """ this line avoid event stacking """
+    screen.onkeypress(None, 'Right')
+    global character_img
+    global character_dir
+    character.shape('./Img/character/right/frame_' + str(character_img % 6) + '.gif')
+    canvas.xview_scroll(1, "units")
+    character.forward(10)
+    character_img += 1
+    character_dir = 1
+    create_gravity(border, character)
+    screen.onkeypress(move_right, 'Right')
+    
+    return 0
 
-    screen.update()
 
-    full_string = "".join(RULES[character] for character in string)
-    sub_string = full_string[len(string):]
-    string = full_string
+def jump():
+    screen.onkeypress(None, 'Up')
+    global character_dir
+    if keyboard.is_pressed('Left'):
+        print("a")
+        canvas.xview_scroll(-2, "units")
+        character.sety(character.ycor() + 100)
+        canvas.xview_scroll(-2, "units")
+        character.setx(character.xcor() - 100)
+        canvas.xview_scroll(-3, "units")
+        character.sety(character.ycor() - 100)
+        canvas.xview_scroll(-3, "units")
+        character_dir = -1
+    elif keyboard.is_pressed("Right"):
+        print("b")
+        canvas.xview_scroll(2, "units")
+        character.sety(character.ycor() + 100)
+        canvas.xview_scroll(2, "units")
+        character.setx(character.xcor() + 100)
+        canvas.xview_scroll(3, "units")
+        character.sety(character.ycor() - 100)
+        """ character.setheading(-90)
+        character.speed(10)
+        character.circle(50, -180)
+        character.speed(1) """
+        canvas.xview_scroll(3, "units")
+        character_dir = 1
+        
+    else:
+        print("x")
+        character.sety(character.ycor() + 100)
+        character.sety(character.ycor() - 100)
+        canvas.yview_scroll(0, "units")
+    create_gravity(border, character)
+    screen.onkeypress(jump, 'Up')
 
-screen.tracer(True)
+def shoot():
+    """ this line avoid event stacking """
+    screen.onkeypress(None, 'space')
+    for i in range(3):
+      if(character_dir == 1):
+        character.shape('./Img/character/shooting/right/frame_'+str(i) + '.gif')
+      else:
+        character.shape('./Img/character/shooting/left/frame_'+str(i) + '.gif')
+    time.sleep(0.1)
+    screen.onkeypress(shoot, 'space')
 
-### Finished generating a landscape to explore
-
-turtle.penup()
-turtle.home()
-turtle.setheading(90)
-turtle.color('dark green', 'light green')
-turtle.showturtle()
 
 screen.onkeypress(move_left, "Left")
 screen.onkeypress(move_right, "Right")
 screen.onkeypress(jump, "Up")
-screen.onkey(move_down, "Down")
 screen.onkeypress(shoot,"space")
 screen.listen()
 
