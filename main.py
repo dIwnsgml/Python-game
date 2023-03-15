@@ -53,13 +53,24 @@ screen.addshape("./Img/character/standing/right/frame_2.gif")
 screen.addshape("./Img/character/standing/right/frame_3.gif")
 screen.addshape("./Img/character/standing/right/frame_4.gif")
 screen.addshape("./Img/character/standing/right/frame_5.gif")
+screen.addshape("./Img/tank/moving/left/frame_0.gif")
+screen.addshape("./Img/tank/moving/left/frame_1.gif")
+screen.addshape("./Img/tank/moving/left/frame_2.gif")
+screen.addshape("./Img/tank/moving/left/frame_3.gif")
+screen.addshape("./Img/tank/moving/left/frame_4.gif")
+screen.addshape("./Img/tank/moving/left/frame_5.gif")
+screen.addshape("./Img/tank/moving/right/frame_0.gif")
+screen.addshape("./Img/tank/moving/right/frame_1.gif")
+screen.addshape("./Img/tank/moving/right/frame_2.gif")
+screen.addshape("./Img/tank/moving/right/frame_3.gif")
+screen.addshape("./Img/tank/moving/right/frame_4.gif")
+screen.addshape("./Img/tank/moving/right/frame_5.gif")
 
 character = trtl.Turtle()
 character.shape('./Img/character/run/right/frame_0.gif')
 character.width(MAGNIFICATION)
 character.resizemode('auto')
 character.speed(3)
-
 character.penup()
 
 border = create_border()
@@ -74,6 +85,7 @@ def move_left():
     global character_img
     global character_dir
     global character_animation
+    character_animation = 1
     character.shape('./Img/character/run/left/frame_' + str(character_img % 6) + '.gif')
     canvas.xview_scroll(-1, "units")
     character.forward(-10)
@@ -81,8 +93,8 @@ def move_left():
     character_dir = -1
     create_gravity(border, character)
     screen.onkeypress(move_left, 'Left')
-    
-    return 0
+    character_animation = 0
+    standing()
 
 
 def move_right():
@@ -91,6 +103,7 @@ def move_right():
     global character_img
     global character_dir
     global character_animation
+    character_animation = 1
     character.shape('./Img/character/run/right/frame_' + str(character_img % 6) + '.gif')
     canvas.xview_scroll(1, "units")
     character.forward(10)
@@ -98,15 +111,15 @@ def move_right():
     character_dir = 1
     create_gravity(border, character)
     screen.onkeypress(move_right, 'Right')
-    
-    return 0
+    character_animation = 0
+    standing()
 
 
 def jump():
     screen.onkeypress(None, 'Up')
     global character_dir
     global character_animation
-    character_animation = 0
+    character_animation = 1
     if keyboard.is_pressed('Left'):
         print("a")
         canvas.xview_scroll(-2, "units")
@@ -139,10 +152,13 @@ def jump():
         canvas.yview_scroll(0, "units")
     create_gravity(border, character)
     screen.onkeypress(jump, 'Up')
-    character_animation = 1
+    character_animation = 0
+    standing()
 
 def shoot():
     """ this line avoid event stacking """
+    global character_animation
+    character_animation = 1
     screen.onkeypress(None, 'space')
     for i in range(3):
       if(character_dir == 1):
@@ -150,29 +166,32 @@ def shoot():
       else:
         character.shape('./Img/character/fire/left/frame_'+str(i) + '.gif')
     time.sleep(0.1)
+    character_animation = 0
     screen.onkeypress(shoot, 'space')
 
 def standing():
-  
+  global character_animation
   """ while (not (keyboard.is_pressed("Right") and keyboard.is_pressed("Left") and keyboard.is_pressed("Up") and keyboard.is_pressed("Space"))): """
   i = 0
-  """ while True:
-    if(character_animation == 0):
-       continue
+  while True:
+    if(character_animation == 1 or keyboard.is_pressed("Right") or keyboard.is_pressed("Left") or keyboard.is_pressed("Up") or keyboard.is_pressed("Space")):
+       break
     if(character_dir == 1):
       character.shape('./Img/character/standing/right/frame_'+str(i % 6) + '.gif')
     else:
       character.shape('./Img/character/standing/left/frame_'+str(i % 6) + '.gif')
-    time.sleep(0.1)
-    if(keyboard.is_pressed("Right") or keyboard.is_pressed("Left") or keyboard.is_pressed("Up") or keyboard.is_pressed("Space")):
-       break
-    i += 1 """
-  character.shape('./Img/character/standing/right/frame_'+str(i) + '.gif')
+    time.sleep(0.2)
+    i += 1
+  """ if(character_dir == 1):
+      character.shape('./Img/character/standing/right/frame_'+str(0) + '.gif')
+  else:
+      character.shape('./Img/character/standing/left/frame_'+str(0) + '.gif') """
 
          
 t = [0, 0, 0]
 t[1] = threading.Thread(target=standing, args=())
-t[1].start()
+""" t[1].start() """
+standing()
 
 
 screen.onkeypress(move_left, "Left")
@@ -183,7 +202,6 @@ screen.onkeypress(shoot,"space")
 """ when release any keys, change the state to standing """
 screen.onkeyrelease(standing, "Left")
 screen.onkeyrelease(standing, "Right")
-""" screen.onkeyrelease(standing, "Up") """
 screen.onkeyrelease(standing,"space")
 screen.listen()
 
