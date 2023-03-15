@@ -9,6 +9,7 @@ import threading
 sys.setrecursionlimit(100)
 from border import create_border
 from gravity import create_gravity
+from tank import create_tank
 
 MAGNIFICATION = 10
 
@@ -75,6 +76,13 @@ character.penup()
 
 border = create_border()
 delay = False
+
+tank = trtl.Turtle()
+tank.shape('./Img/tank/moving/left/frame_0.gif')
+tank.width(MAGNIFICATION)
+tank.resizemode('auto')
+tank.speed(3)
+tank.penup()
 
 character_img = 0
 character_dir = 1
@@ -187,12 +195,11 @@ def standing():
   else:
       character.shape('./Img/character/standing/left/frame_'+str(0) + '.gif') """
 
-         
-t = [0, 0, 0]
-t[1] = threading.Thread(target=standing, args=())
-""" t[1].start() """
-standing()
 
+t = [0, 0, 0]
+t[1] = threading.Thread(target=create_tank, args=())
+t[1].start()
+""" standing() """
 
 screen.onkeypress(move_left, "Left")
 screen.onkeypress(move_right, "Right")
