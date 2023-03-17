@@ -1,5 +1,5 @@
 import turtle as trtl
-from random import random
+import random
 import keyboard
 import sys
 import time
@@ -248,21 +248,21 @@ def create_tank(x, y):
     tank.resizemode('auto')
     tank.penup()
     i = 0
+    tank_type = random.randrange(0, 1)
+
     while(True):
         print(tanks_info[0][2])
-        if(tanks_info[tanks_n - 1][2] == "move"):
+        if(tanks_info[tanks_n - 1][2] == "move" and character.xcor() + screen.window_width() < tank.xcor()):
             tank.shape('./img/tank/moving/left/frame_'+str(i % 6) + '.gif')
             tank.forward(1)
             tank.setheading(tanks_info[tanks_n - 1][0])
             time.sleep(0.001)
-            print(x, character.xcor())
-        elif(tanks_info[tanks_n - 1][2] == "fire1"):
-            tank.shape('./img/tank/fire1/left/frame_'+str(i % 10) + '.gif')
+            print(x, character.xcor(), tank.xcor())
+        else:
+            tank.shape('./img/tank/fire1/left/frame_'+str(i % 17) + '.gif')
             time.sleep(0.1)
-        elif(tanks_info[tanks_n - 1][2] == "fire1"):
-            tank.shape('./img/tank/fire2/left/frame_'+str(i % 7) + '.gif')
-            time.sleep(0.001)
         i+=1
+
 
 t = [0, 0, 0]
 print(int(character.xcor()))
