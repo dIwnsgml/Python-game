@@ -129,14 +129,22 @@ def jump():
     global character_animation
     character_animation = 1
     if keyboard.is_pressed('Left'):
-        print("a")
-        canvas.xview_scroll(-2, "units")
+        character.sety(character.ycor() + 10)
+        character.setheading(90)
+        canvas.xview_scroll(2, "units")
+        while(character.ycor() > border.ycor() + 45):
+            character.forward(15)
+            character.left(10)
+            time.sleep(0.3)
+            canvas.xview_scroll(-1, "units")
+        canvas.xview_scroll(2, "units")
+        """ canvas.xview_scroll(-2, "units")
         character.sety(character.ycor() + 100)
         canvas.xview_scroll(-2, "units")
         character.setx(character.xcor() - 100)
         canvas.xview_scroll(-3, "units")
         character.sety(character.ycor() - 100)
-        canvas.xview_scroll(-3, "units")
+        canvas.xview_scroll(-3, "units") """
         character_dir = -1
     elif keyboard.is_pressed("Right"):
         print("b")
@@ -187,8 +195,8 @@ def shoot():
           character.shape('./img/character/fire/right/frame_'+str(i) + '.gif')
           time.sleep(0.1)
         #bullet stops when hit the wall
-        t[2] = threading.Thread(target=create_bullet, args=())
-        t[2].start()
+        t[1] = threading.Thread(target=create_bullet, args=())
+        t[1].start()
         """ while(character.xcor() + screen.window_width() > bullet.xcor()):
             bullet.forward(30)
             time.sleep(0.00001) """
@@ -238,6 +246,18 @@ def standing():
 
 tanks_info = []
 tanks_n = 0
+def tank_missile(x, y):
+    missile = trtl.Turtle()
+    missile.shape('./img/tank/fire1/missile.gif')
+    missile.penup()
+    missile.goto(x, y)
+    missile.setheading(90)
+    while(missile.ycor() > 0):
+        missile.forward(30)
+        missile.left(5)
+        missile.settiltangle(20)
+        time.sleep(0.001)
+
 def create_tank(x, y):
     global tanks_n
     global tanks_info
@@ -247,6 +267,7 @@ def create_tank(x, y):
     tanks_info.append([180, 1, "move"])
     tank.resizemode('auto')
     tank.penup()
+    tank.sety(40)
     i = 0
     tank_type = random.randrange(0, 1)
 
@@ -261,13 +282,16 @@ def create_tank(x, y):
         else:
             tank.shape('./img/tank/fire1/left/frame_'+str(i % 17) + '.gif')
             time.sleep(0.1)
+            if(i % 17 == 10):
+                t[2] = threading.Thread(target=tank_missile, args=(tank.xcor(), tank.ycor()))
+                t[2].start()
         i+=1
 
 
 t = [0, 0, 0]
 print(int(character.xcor()))
-t[1] = threading.Thread(target=create_tank, args=(0, 0))
-t[1].start()
+t[0] = threading.Thread(target=create_tank, args=(0, 0))
+t[0].start()
 
 
 
