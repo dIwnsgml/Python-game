@@ -6,6 +6,7 @@ import time
 import threading
 import os
 import glob
+import input
 
 """ sys.setrecursionlimit(100000) """
 sys.setrecursionlimit(100)
@@ -74,6 +75,7 @@ character.resizemode('auto')
 character.speed(0)
 character.penup()
 character.goto(-1 * width / 2 + 100, 0)
+character.hp = 20
 canvas.xview_scroll(-100000, "units")
 border = create_border()
 delay = False
@@ -133,40 +135,35 @@ def jump():
         character.setheading(90)
         canvas.xview_scroll(2, "units")
         while(character.ycor() > border.ycor() + 45):
-            character.forward(15)
+            character.forward(14)
             character.left(10)
-            time.sleep(0.3)
+            time.sleep(0.01)
             canvas.xview_scroll(-1, "units")
         canvas.xview_scroll(2, "units")
-        """ canvas.xview_scroll(-2, "units")
-        character.sety(character.ycor() + 100)
-        canvas.xview_scroll(-2, "units")
-        character.setx(character.xcor() - 100)
-        canvas.xview_scroll(-3, "units")
-        character.sety(character.ycor() - 100)
-        canvas.xview_scroll(-3, "units") """
         character_dir = -1
     elif keyboard.is_pressed("Right"):
-        print("b")
-        canvas.xview_scroll(2, "units")
-        character.sety(character.ycor() + 100)
-        canvas.xview_scroll(2, "units")
-        character.setx(character.xcor() + 100)
-        canvas.xview_scroll(3, "units")
-        character.sety(character.ycor() - 100)
-        """ character.setheading(-90)
-        character.speed(10)
-        character.circle(50, -180)
-        character.speed(1) """
-        canvas.xview_scroll(3, "units")
-        character_dir = 1
+        character.sety(character.ycor() + 10)
+        character.setheading(90)
+        canvas.xview_scroll(-2, "units")
+        while(character.ycor() > border.ycor() + 45):
+            character.forward(14)
+            character.right(10)
+            time.sleep(0.01)
+            canvas.xview_scroll(1, "units")
+        canvas.xview_scroll(-2, "units")
+        character_dir = -1
         
     else:
         print("x")
-        character.sety(character.ycor() + 100)
-        character.sety(character.ycor() - 100)
+        for i in range(10):  
+            character.sety(character.ycor() + 10)
+            time.sleep(0.001)
+        for i in range(10):              
+            character.sety(character.ycor() - 10)
+            time.sleep(0.001)
         canvas.yview_scroll(0, "units")
     create_gravity(border, character)
+    character.setheading(0)
     trtl.delay(0)
     screen.onkeypress(jump, 'Up')
     character_animation = 0
@@ -248,49 +245,81 @@ tanks_info = []
 tanks_n = 0
 def tank_missile(x, y):
     missile = trtl.Turtle()
-    missile.shape('./img/tank/fire1/missile.gif')
     missile.penup()
     missile.goto(x, y)
+    missile.shape('./img/tank/fire1/missile1.gif')
     missile.setheading(90)
-    while(missile.ycor() > 0):
+    while(missile.ycor() > 20):
         missile.forward(30)
         missile.left(5)
-        missile.settiltangle(20)
+        if(missile.heading() > 180):
+            missile.shape('./img/tank/fire1/missile2.gif')
         time.sleep(0.001)
+    for i in range(10):
+        missile.shape('./img/tank/fire1/explode/frame_'+str(i % 10) + '.gif')
+        time.sleep(0.01)
+    if(missile.xcor() - 100 < character.xcor() < missile.xcor() + 100):
+        print("hit missile")
+        character.hp -= 10
+        if(character.hp <= 0):
+            character.shape("./img/character/dead/ghost.gif")
+    missile.clear()
+    missile.reset()
+
+def tank_bullet(x, y):
+  tank_bullet = trtl.Turtle()
+  tank_bullet.penup()
+  tank_bullet.goto(x, y - 20)
+  tank_bullet.shape('./img/tank/fire1/bullet.gif')
+  tank_bullet.setheading(180)
+  """ while(x - screen.window_width() < tank_bullet.xcor() and (character.xcor() < tank_bullet.xcor() and character.ycor() -45 > tank_bullet.ycor())):  """
+  print(character.ycor() - 45, tank_bullet.ycor())
+  while(True):
+      if(abs(character.xcor() - tank_bullet.xcor()) < 20 and abs(character.ycor() - tank_bullet.ycor()) < 10):
+          print("hit", tank_bullet.ycor(), character.ycor())
+          break
+      tank_bullet.forward(10)
+      time.sleep(0.01)
 
 def create_tank(x, y):
     global tanks_n
     global tanks_info
     tanks_n += 1
     tank = trtl.Turtle()
+    tank.penup()
+    tank.goto(x, y + 60)
     tank.shape('./img/tank/moving/left/frame_0.gif')
+    words = ["orange", "red", "pink", "purple", "green", "cyan", "blue"]
+    rand_enemy = random.choice(words)
+    enemylist = []
+    enemylist.append(rand_enemy)
     tanks_info.append([180, 1, "move"])
     tank.resizemode('auto')
-    tank.penup()
-    tank.sety(40)
     i = 0
     tank_type = random.randrange(0, 1)
 
     while(True):
-        print(tanks_info[0][2])
         if(tanks_info[tanks_n - 1][2] == "move" and character.xcor() + screen.window_width() < tank.xcor()):
             tank.shape('./img/tank/moving/left/frame_'+str(i % 6) + '.gif')
             tank.forward(1)
             tank.setheading(tanks_info[tanks_n - 1][0])
             time.sleep(0.001)
-            print(x, character.xcor(), tank.xcor())
+            """ print(x, character.xcor(), tank.xcor()) """
         else:
             tank.shape('./img/tank/fire1/left/frame_'+str(i % 17) + '.gif')
-            time.sleep(0.1)
-            if(i % 17 == 10):
+            time.sleep(0.12)
+            if(i % 17 == 3):
+                t[2] = threading.Thread(target=tank_bullet, args=(tank.xcor(), tank.ycor()))
+                t[2].start()
+            elif(i % 17 == 10):
                 t[2] = threading.Thread(target=tank_missile, args=(tank.xcor(), tank.ycor()))
                 t[2].start()
         i+=1
 
 
-t = [0, 0, 0]
+t = [0, 0, 0, 0]
 print(int(character.xcor()))
-t[0] = threading.Thread(target=create_tank, args=(0, 0))
+t[0] = threading.Thread(target=create_tank, args=(-3000, 0))
 t[0].start()
 
 
@@ -302,10 +331,61 @@ screen.onkeypress(move_right, "Right")
 screen.onkeypress(jump, "Up")
 screen.onkeypress(shoot,"space")
 
+
 """ when release any keys, change the state to standing """
-screen.onkeyrelease(standing, "Left")
-screen.onkeyrelease(standing, "Right")
-screen.onkeyrelease(standing,"space")
+
+enemy = trtl.Turtle(shape="square")
+words = ["orange", "red", "pink", "purple", "green", "cyan", "blue"]
+rand_enemy = random.choice(words)
+enemy.goto(0, 0)
+enemy.color(rand_enemy)
+enemy.shape("square")
+enemy.shapesize(5)
+enemy.turtlesize(1)
+global enemy_alive
+enemy_alive = "alive"
+enemy.pu()
+fd_good = "hi"
+fd_goods = "hi"
+enemylist = []
+enemylist.append(rand_enemy)
+#setup for code
+
+
+
+""" while (enemy_alive == "alive"):
+  enemy_ = random.choice(enemylist)
+  enemy.fd(100)
+  enemy_s = random.choice(enemylist)
+  if (fd_good == "hi"):
+    enemy.clear()
+    enemy.write(enemy_, font=("Arial", 10, "bold"))
+  fd_good = "bye"
+  enemy.speed(0.00000000000000000000000000011111111111)
+  enemy.back(100)
+  if (fd_goods == "hi"):
+    enemy.write(enemy_, font=("Arial", 10, "bold"))
+  fd_goods = "bye"
+  enemy.speed(0.00000000000000000000000000011111111111)
+  enemy.speed(0.00000000000000000000000000011111111111)
+
+  screen.onkeypress(input.typedO, "o")
+  screen.onkeypress(input.typedR, "r")
+  screen.onkeypress(input.typedA, "a")
+  screen.onkeypress(input.typedN, "n")
+  screen.onkeypress(input.typedG, "g")
+  screen.onkeypress(input.typedE, "e")
+  
+  screen.onkeypress(input.typedB, "b")
+  screen.onkeypress(input.typedL, "l")
+  screen.onkeypress(input.typedU, "u")
+  screen.onkeypress(input.typedP, "p")
+  screen.onkeypress(input.typedI, "i")
+  screen.onkeypress(input.typedK, "k")
+  screen.onkeypress(input.typedR, "r")
+  screen.onkeypress(input.typedY, "y")
+  screen.onkeypress(input.typedD, "d") """
+
 screen.listen()
 
 screen.mainloop()
