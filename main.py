@@ -5,10 +5,10 @@ import sys
 import time
 import threading
 import os
-import glob
-import input
+import test4
 
 """ sys.setrecursionlimit(100000) """
+#screen setting
 sys.setrecursionlimit(100)
 sys.setswitchinterval(0.001)
 from border import create_border
@@ -26,10 +26,9 @@ trtl.delay(0)
 canvas = screen.getcanvas()
 canvas.config(xscrollincrement=str(MAGNIFICATION))
 canvas.config(yscrollincrement=str(MAGNIFICATION))
+trtl.setup(width=1.0, height=1.0)
 """ canvas.place(relx=0, rely=0, width=screen.window_width(), height = screen.window_height()) """
 
-dir = './img'
-depth = 0
 def get_filepaths(directory):
     """
     This function will generate the file names in a directory 
@@ -48,44 +47,26 @@ def get_filepaths(directory):
 
     return file_paths  # Self-explanatory.
 
-# Run the above function and store its results in a variable.   
 full_file_paths = get_filepaths("./img")
+
+#add all files in img folder
 for i in range (len(full_file_paths)):
   screen.addshape(full_file_paths[i].replace('\\', '/'))
-""" print(os.scandir("./img"))
-print(os.scandir("./img"))
-i = 0
-while(len(os.listdir(dir)) != 0):
-    print(os.listdir(dir))
-    if(os.listdir(dir)[0].find('gif') < 0 and len(os.listdir(dir)) > i):
-        print(os.listdir(dir)[0].find('gif'))
-        dir += '/'+ os.listdir(dir)[i]
-    else:
-        dir = dir.split(dir.split('/')[len(dir.split('/')) - 1])[0]
-        print(dir)
-        i += 1
-    print(dir)
-    time.sleep(1)
-    depth += 1 """
 
+#main character setting
 character = trtl.Turtle()
 character.shape('./img/character/run/right/frame_0.gif')
 character.width(MAGNIFICATION)
 character.resizemode('auto')
 character.speed(0)
 character.penup()
-character.goto(-1 * width / 2 + 100, 0)
+character.goto(-1 * width / 2 + 100, 45)
 character.hp = 20
 canvas.xview_scroll(-100000, "units")
 border = create_border()
 delay = False
+test4.test(character)
 
-""" tanks = trtl.Turtle()
-tanks.shape('./img/tank/moving/left/frame_0.gif')
-tanks.width(MAGNIFICATION)
-tanks.resizemode('auto')
-tanks.speed(3)
-tanks.penup() """
 character_img = 0
 character_dir = 1
 character_animation = 0
