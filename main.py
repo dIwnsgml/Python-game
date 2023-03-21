@@ -364,22 +364,18 @@ print(int(character.xcor()))
 t[0] = threading.Thread(target=create_tank, args=(-2000, 0))
 t[0].start()
 
-t[0] = threading.Thread(target=create_helicopter, args=(-2000, screen.window_height() / 2 - 200))
-t[0].start()
+t[3] = threading.Thread(target=create_helicopter, args=(-2000, screen.window_height() / 2 - 200))
+t[3].start()
 
-
-
-""" standing() """
 
 screen.onkeypress(move_left, "Left")
 screen.onkeypress(move_right, "Right")
 screen.onkeypress(jump, "Up")
 screen.onkeypress(shoot,"space")
 
+""" when release any keys, change the state to standing """
 screen.onkeyrelease(standing, "Right")
 screen.onkeyrelease(standing, "Left")
-
-""" when release any keys, change the state to standing """
 
 enemy = trtl.Turtle(shape="square")
 words = ["orange", "red", "pink", "purple", "green", "cyan", "blue"]
