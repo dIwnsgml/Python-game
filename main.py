@@ -72,8 +72,8 @@ def move_left():
     global character_animation
     character_animation = 1
     character.shape('./img/character/run/left/frame_' + str(character_img % 6) + '.gif')
-    canvas.xview_scroll(-1, "units")
-    character.forward(-10)
+    canvas.xview_scroll(-2, "units")
+    character.forward(-20)
     character_img += 1
     character_dir = -1
     create_gravity(border, character)
@@ -90,8 +90,8 @@ def move_right():
     global character_animation
     character_animation = 1
     character.shape('./img/character/run/right/frame_' + str(character_img % 6) + '.gif')
-    canvas.xview_scroll(1, "units")
-    character.forward(10)
+    canvas.xview_scroll(2, "units")
+    character.forward(20)
     character_img += 1
     character_dir = 1
     create_gravity(border, character)
@@ -259,25 +259,19 @@ def create_tank(x, y):
     tank.hp = 30
     tank.penup()
     tank.goto(x, y + 60)
-    tank.shape('./img/tank/moving/left/frame_0.gif')
-    words = ["orange", "red", "pink", "purple", "green", "cyan", "blue"]
-    rand_enemy = random.choice(words)
-    enemylist = []
-    enemylist.append(rand_enemy)
+    tank.shape('./img/tank/moving/left/frame_0_delay-0.1s.gif')
     tanks_info.append([180, 1, "move"])
     tank.resizemode('auto')
     i = 0
-    tank_type = random.randrange(0, 1)
-
     while(True):
         if(character.xcor() + screen.window_width() - 300 < tank.xcor() and tank.hp > 0):
-            tank.shape('./img/tank/moving/left/frame_'+str(i % 6) + '.gif')
+            tank.shape('./img/tank/moving/left/frame_'+str(i % 6) + '_delay-0.1s.gif')
             tank.forward(10)
             tank.setheading(tanks_info[tanks_n - 1][0])
             time.sleep(0.001)
             """ print(x, character.xcor(), tank.xcor()) """
         elif(character.xcor() + screen.window_width() > tank.xcor() and tank.hp > 0):
-            tank.shape('./img/tank/fire1/left/frame_'+str(i % 17) + '.gif')
+            tank.shape('./img/tank/fire1/left/frame_'+str(i % 17) + '_delay-0.1s.gif')
             time.sleep(0.12)
             if(i % 17 == 3):
                 t[2] = threading.Thread(target=tank_bullet, args=(tank.xcor(), tank.ycor()))
@@ -286,9 +280,10 @@ def create_tank(x, y):
                 t[2] = threading.Thread(target=tank_missile, args=(tank.xcor(), tank.ycor()))
                 t[2].start()
         elif(tank.hp <= 0):
+            tank.sety(tank.ycor() + 50)
             for j in range(43):
                 tank.shape('./img/tank/destroyed/left/frame_'+str(j) + '_delay-0.1s.gif')
-                time.sleep(0.1)
+                time.sleep(0.05)
             tank.clear()
             tank.reset()
             break
@@ -321,12 +316,14 @@ def helicopters_missile(x, y):
     missile.reset()
 
 
+helicopter_ = "destroy"
 def create_helicopter(x, y):
     global helicopters_n
     global helicopters_info
     global helicopter
     helicopters_n += 1
     helicopter = trtl.Turtle()
+    helicopter_pen = trtl.Turtle()
     helicopter.hp = 30
     helicopter.penup()
     helicopter.goto(x, y + 60)
@@ -334,6 +331,14 @@ def create_helicopter(x, y):
     helicopters_info.append([180, 1, "move"])
     helicopter.resizemode('auto')
     i = 0
+    screen.onkeypress(typedD, "d")
+    screen.onkeypress(typedE, "e")
+    screen.onkeypress(typedS, "s")
+    screen.onkeypress(typedT, "t")
+    screen.onkeypress(typedR, "r")
+    screen.onkeypress(typedO, "o")
+    screen.onkeypress(typedY, "y")
+
 
     while(True):
         if(abs(character.xcor() - helicopter.xcor()) > 100 and helicopter.hp > 0):
@@ -353,12 +358,22 @@ def create_helicopter(x, y):
                 t[2].start()
         elif(helicopter.hp <= 0):
             for j in range(43):
-                tank.shape('./img/tank/destroyed/left/frame_'+str(j) + '_delay-0.1s.gif')
+                helicopter.shape('./img/helicopter/destroyed/frame_'+str(j) + '_delay-0.1s.gif')
                 time.sleep(0.1)
             helicopter.clear()
             helicopter.reset()
             break
+        helicopter_pen.clear()
+        helicopter_pen.goto(helicopter.xcor() + 100, helicopter.ycor())
+        helicopter_pen.write(helicopter_, font=("Arial", 11, "bold"))
         i+=1
+    screen.onkeypress(None, "d")
+    screen.onkeypress(None, "e")
+    screen.onkeypress(None, "s")
+    screen.onkeypress(None, "t")
+    screen.onkeypress(None, "r")
+    screen.onkeypress(None, "o")
+    screen.onkeypress(None, "y")
 t = [0, 0, 0, 0]
 print(int(character.xcor()))
 t[0] = threading.Thread(target=create_tank, args=(-2000, 0))
@@ -396,39 +411,55 @@ enemylist.append(rand_enemy)
 
 
 
-""" while (enemy_alive == "alive"):
-  enemy_ = random.choice(enemylist)
-  enemy.fd(100)
-  enemy_s = random.choice(enemylist)
-  if (fd_good == "hi"):
-    enemy.clear()
-    enemy.write(enemy_, font=("Arial", 10, "bold"))
-  fd_good = "bye"
-  enemy.speed(0.00000000000000000000000000011111111111)
-  enemy.back(100)
-  if (fd_goods == "hi"):
-    enemy.write(enemy_, font=("Arial", 10, "bold"))
-  fd_goods = "bye"
-  enemy.speed(0.00000000000000000000000000011111111111)
-  enemy.speed(0.00000000000000000000000000011111111111)
+def typedD():
+    global helicopter_
 
-  screen.onkeypress(input.typedO, "o")
-  screen.onkeypress(input.typedR, "r")
-  screen.onkeypress(input.typedA, "a")
-  screen.onkeypress(input.typedN, "n")
-  screen.onkeypress(input.typedG, "g")
-  screen.onkeypress(input.typedE, "e")
-  
-  screen.onkeypress(input.typedB, "b")
-  screen.onkeypress(input.typedL, "l")
-  screen.onkeypress(input.typedU, "u")
-  screen.onkeypress(input.typedP, "p")
-  screen.onkeypress(input.typedI, "i")
-  screen.onkeypress(input.typedK, "k")
-  screen.onkeypress(input.typedR, "r")
-  screen.onkeypress(input.typedY, "y")
-  screen.onkeypress(input.typedD, "d") """
+    helicopter_ = helicopter_.replace("d", "") 
+    print(helicopter_)
+    if(len(helicopter_) == 0):
+       helicopter.hp = 0
 
+def typedE():
+    global helicopter_
+
+    helicopter_ = helicopter_.replace("e", "")   
+    if(len(helicopter_) == 0):
+       helicopter.hp = 0
+
+def typedS():
+    global helicopter_
+
+    helicopter_ = helicopter_.replace("s", "")   
+    if(len(helicopter_) == 0):
+       helicopter.hp = 0
+
+def typedT():
+    global helicopter_
+
+    helicopter_ = helicopter_.replace("t", "")   
+    if(len(helicopter_) == 0):
+       helicopter.hp = 0
+
+def typedR():
+    global helicopter_
+
+    helicopter_ = helicopter_.replace("r", "")   
+    if(len(helicopter_) == 0):
+       helicopter.hp = 0
+
+def typedO():
+    global helicopter_
+
+    helicopter_ = helicopter_.replace("o", "")   
+    if(len(helicopter_) == 0):
+       helicopter.hp = 0
+
+def typedY():
+    global helicopter_
+
+    helicopter_ = helicopter_.replace("y", "")   
+    if(len(helicopter_) == 0):
+       helicopter.hp = 0
+      
 screen.listen()
-
 screen.mainloop()
