@@ -5,7 +5,6 @@ import sys
 import time
 import threading
 import os
-import test4
 
 """ sys.setrecursionlimit(100000) """
 #screen setting
@@ -59,7 +58,9 @@ character.hp = 20
 canvas.xview_scroll(-100000, "units")
 border = create_border()
 delay = False
-test4.test(character)
+
+test = trtl.Turtle()
+test.goto(-1 * width / 2 + 300, 45)
 
 character_img = 0
 character_dir = 1
@@ -112,29 +113,30 @@ def jump():
         while(character.ycor() > border.ycor() + 45):
             character.forward(14)
             character.left(10)
-            time.sleep(0.0001)
+            time.sleep(0.00001)
             canvas.xview_scroll(-1, "units")
         canvas.xview_scroll(2, "units")
         character_dir = -1
-    elif keyboard.is_pressed("Right"):
+    else:
         character.sety(character.ycor() + 10)
         character.setheading(90)
         canvas.xview_scroll(-2, "units")
         while(character.ycor() > border.ycor() + 45):
             character.forward(14)
             character.right(10)
-            time.sleep(0.0001)
+            time.sleep(0.00001)
             canvas.xview_scroll(1, "units")
         canvas.xview_scroll(-2, "units")
         character_dir = 1
         
-    else:
+    """ else:
         print("x")
-        while(character.ycor() < 145):
-          character.sety(character.ycor() + 0.1)
+        while(character.ycor() < 160):
+          character.sety(character.ycor() + 0.2)
         while(character.ycor() > 45):
-          character.sety(character.ycor() - 0.1)
-        canvas.yview_scroll(0, "units")
+          character.sety(character.ycor() - 0.2)
+        canvas.yview_scroll(0, "units") """
+    
     create_gravity(border, character)
     character.setheading(0)
     screen.onkeypress(jump, 'Up')
@@ -148,7 +150,7 @@ def create_bullet():
   bullet.goto(character.xcor() + 20, character.ycor() + 15)
   while(character.xcor() + screen.window_width() > bullet.xcor() and not(abs(bullet.xcor() - tank.xcor()) < 20 and abs(bullet.ycor() - tank.ycor()) < 10)):
       bullet.forward(0.4)
-      if(abs(bullet.xcor() - tank.xcor()) < 20 and abs(bullet.ycor() - tank.ycor()) < 10):
+      if(abs(bullet.xcor() - tank.xcor()) < 30 and abs(bullet.ycor() - tank.ycor() + 40) < 10):
           tank.hp -= 10
           bullet.clear()
           bullet.reset()
@@ -236,18 +238,18 @@ def tank_missile(x, y):
 def tank_bullet(x, y):
   tank_bullet = trtl.Turtle()
   tank_bullet.penup()
-  tank_bullet.goto(x, y - 20)
+  tank_bullet.goto(x, y - 30)
   tank_bullet.shape('./img/tank/fire1/bullet.gif')
   tank_bullet.setheading(180)
   """ while(x - screen.window_width() < tank_bullet.xcor() and (character.xcor() < tank_bullet.xcor() and character.ycor() -45 > tank_bullet.ycor())):  """
   print(character.ycor() - 45, tank_bullet.ycor())
   while(True):
-      if(abs(character.xcor() - tank_bullet.xcor()) < 20 and abs(character.ycor() - tank_bullet.ycor()) < 10):
+      if(abs(character.xcor() - tank_bullet.xcor()) < 30 and abs(character.ycor() - tank_bullet.ycor() + 20) < 30):
           print("hit", tank_bullet.ycor(), character.ycor())
           tank_bullet.clear()
           tank_bullet.reset()
           break
-      tank_bullet.forward(10)
+      tank_bullet.forward(15)
       time.sleep(0.01)
 
 def create_tank(x, y):
@@ -258,7 +260,7 @@ def create_tank(x, y):
     tank = trtl.Turtle()
     tank.hp = 30
     tank.penup()
-    tank.goto(x, y + 60)
+    tank.goto(x, y + 100)
     tank.shape('./img/tank/moving/left/frame_0_delay-0.1s.gif')
     tanks_info.append([180, 1, "move"])
     tank.resizemode('auto')
@@ -342,16 +344,20 @@ def create_helicopter(x, y):
 
     while(True):
         if(abs(character.xcor() - helicopter.xcor()) > 100 and helicopter.hp > 0):
-            helicopter.shape('./img/helicopter/moving/left/frame_'+str(i % 12) + '_delay-0.1s.gif')
             if((character.xcor() - helicopter.xcor()) >= 0):
+                helicopter.shape('./img/helicopter/moving/right/frame_'+str(i % 12) + '_delay-0.1s.gif')
                 helicopter.forward(-20)
             else:
+                helicopter.shape('./img/helicopter/moving/left/frame_'+str(i % 12) + '_delay-0.1s.gif')
                 helicopter.forward(20)
             helicopter.setheading(helicopters_info[helicopters_n - 1][0])
             time.sleep(0.001)
             """ print(x, character.xcor(), tank.xcor()) """
         elif(character.xcor() + screen.window_width() > helicopter.xcor() and helicopter.hp > 0):
-            helicopter.shape('./img/helicopter/fire/left/frame_'+str(i % 6) + '_delay-0.1s.gif')
+            if((character.xcor() - helicopter.xcor()) >= 0):
+                helicopter.shape('./img/helicopter/fire/right/frame_'+str(i % 6) + '_delay-0.1s.gif')
+            else:
+                helicopter.shape('./img/helicopter/fire/left/frame_'+str(i % 6) + '_delay-0.1s.gif')
             time.sleep(0.12)
             if(i % 6 == 3):
                 t[2] = threading.Thread(target=helicopters_missile, args=(helicopter.xcor(), helicopter.ycor()))
@@ -359,7 +365,7 @@ def create_helicopter(x, y):
         elif(helicopter.hp <= 0):
             for j in range(43):
                 helicopter.shape('./img/helicopter/destroyed/frame_'+str(j) + '_delay-0.1s.gif')
-                time.sleep(0.1)
+                time.sleep(0.05)
             helicopter.clear()
             helicopter.reset()
             break
@@ -391,24 +397,6 @@ screen.onkeypress(shoot,"space")
 """ when release any keys, change the state to standing """
 screen.onkeyrelease(standing, "Right")
 screen.onkeyrelease(standing, "Left")
-
-enemy = trtl.Turtle(shape="square")
-words = ["orange", "red", "pink", "purple", "green", "cyan", "blue"]
-rand_enemy = random.choice(words)
-enemy.goto(0, 0)
-enemy.color(rand_enemy)
-enemy.shape("square")
-enemy.shapesize(5)
-enemy.turtlesize(1)
-global enemy_alive
-enemy_alive = "alive"
-enemy.pu()
-fd_good = "hi"
-fd_goods = "hi"
-enemylist = []
-enemylist.append(rand_enemy)
-#setup for code
-
 
 
 def typedD():
