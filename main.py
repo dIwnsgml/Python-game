@@ -69,69 +69,6 @@ def portal():
   t2.goto(120, 80)
 
 
-def horizontal_rect(x):
-  for i in range(x):
-    trtl.fillcolor(random.choice(color))
-    trtl.begin_fill()
-    trtl.forward(70)
-    trtl.right(90)
-    trtl.forward(20)
-    trtl.right(90)
-    trtl.forward(70)
-    trtl.right(90)
-    trtl.forward(20)
-    trtl.end_fill()
-    trtl.right(90)
-    trtl.penup()
-    trtl.forward(70)
-    trtl.pendown()
-
-def vertical_rect(x):
-  trtl.left(90)
-  for i in range(x):
-    trtl.fillcolor(random.choice(color))
-    trtl.begin_fill()
-    trtl.forward(70)
-    trtl.right(90)
-    trtl.forward(20)
-    trtl.right(90)
-    trtl.forward(70)
-    trtl.right(90)
-    trtl.forward(20)
-    trtl.end_fill()
-    trtl.right(90)
-    trtl.penup()
-    trtl.forward(70)
-    trtl.pendown()
-  
-def draw_floor():
-  trtl.penup()
-  trtl.goto(-5000, int(canvas.winfo_height() / 2) - 350)
-  trtl.pendown()
-  horizontal_rect(21)
-
-def draw_wall():
-  trtl.penup()
-  trtl.goto(-5000,int(canvas.winfo_height() / 2) - 350)
-  trtl.pendown()
-  vertical_rect(10)
-
-def add_platforms():
-  trtl.penup()
-  trtl.goto(15, -45)
-  trtl.pendown()
-  trtl.right(90)
-  horizontal_rect(2)
-  trtl.penup()
-  trtl.goto(155, 30)
-  trtl.pendown()
-  horizontal_rect(2)
-
-
-
-draw_floor()
-draw_wall()
-add_platforms()
 
 #main character setting
 character = trtl.Turtle()
@@ -150,6 +87,84 @@ delay = False
 
 test = trtl.Turtle()
 test.goto(-1 * width / 2 + 300, 45)
+
+
+
+
+def horizontal_rect():
+  trtl.pendown()
+  trtl.setheading(0)
+  trtl.fillcolor(random.choice(color))
+  trtl.begin_fill()
+  trtl.forward(70)
+  trtl.right(90)
+  trtl.forward(20)
+  trtl.right(90)
+  trtl.forward(70)
+  trtl.right(90)
+  trtl.forward(20)
+  trtl.end_fill()
+  trtl.right(90)
+  trtl.penup()
+  trtl.forward(70)
+  trtl.penup()
+
+def vertical_rect():
+  trtl.pendown()
+  trtl.setheading(90)
+  trtl.fillcolor(random.choice(color))
+  trtl.begin_fill()
+  trtl.forward(70)
+  trtl.right(90)
+  trtl.forward(20)
+  trtl.right(90)
+  trtl.forward(70)
+  trtl.right(90)
+  trtl.forward(20)
+  trtl.end_fill()
+  trtl.right(90)
+  trtl.penup()
+  trtl.forward(70)
+  trtl.penup()
+
+  
+def draw_floor():
+  trtl.penup()
+  trtl.goto(-5000, int(character.ycor() - 45))
+  trtl.pendown()
+  for i in range(80):
+      horizontal_rect()
+
+def draw_wall():
+  trtl.penup()
+  trtl.goto(-5000,int(character.ycor() - 45))
+  trtl.pendown()
+  for i in range(10):
+      vertical_rect()
+
+def add_platforms():
+  trtl.penup()
+  trtl.goto(15, -45)
+  trtl.pendown()
+  trtl.right(90)
+  horizontal_rect()
+  horizontal_rect()
+  trtl.penup()
+  trtl.goto(155, 30)
+  trtl.pendown()
+  horizontal_rect()
+  horizontal_rect()
+  while(trtl.xcor() < width):
+      trtl.forward(100)
+      trtl.sety(trtl.ycor() + 100)
+      if(random.choice([0, 0, 0, 1])):
+          horizontal_rect()
+
+
+draw_floor()
+draw_wall()
+add_platforms()
+
 
 character_img = 0
 character_dir = 1
