@@ -6,6 +6,12 @@ import time
 import threading
 import os
 
+
+wn = trtl.Screen()
+
+""" portal() """
+
+
 """ sys.setrecursionlimit(100000) """
 #screen setting
 sys.setrecursionlimit(100)
@@ -16,7 +22,7 @@ from gravity import create_gravity
 
 MAGNIFICATION = 10
 width = 10000
-height = 800
+height = 10000
 
 screen = trtl.Screen()
 screen.screensize(width, height)
@@ -46,6 +52,87 @@ full_file_paths = get_filepaths("./img")
 for i in range (len(full_file_paths)):
   screen.addshape(full_file_paths[i].replace('\\', '/'))
 
+
+trtl.pencolor("black")
+trtl.speed(0)
+color = ["purple", "blue", "black"]
+
+
+#portal function
+def portal():
+#portal gif
+  global t2
+  t2 = trtl.Turtle()
+  wn.addshape("portal.gif")
+  t2.shape("portal.gif")
+  t2.pu()
+  t2.goto(120, 80)
+
+
+def horizontal_rect(x):
+  for i in range(x):
+    trtl.fillcolor(random.choice(color))
+    trtl.begin_fill()
+    trtl.forward(70)
+    trtl.right(90)
+    trtl.forward(20)
+    trtl.right(90)
+    trtl.forward(70)
+    trtl.right(90)
+    trtl.forward(20)
+    trtl.end_fill()
+    trtl.right(90)
+    trtl.penup()
+    trtl.forward(70)
+    trtl.pendown()
+
+def vertical_rect(x):
+  trtl.left(90)
+  for i in range(x):
+    trtl.fillcolor(random.choice(color))
+    trtl.begin_fill()
+    trtl.forward(70)
+    trtl.right(90)
+    trtl.forward(20)
+    trtl.right(90)
+    trtl.forward(70)
+    trtl.right(90)
+    trtl.forward(20)
+    trtl.end_fill()
+    trtl.right(90)
+    trtl.penup()
+    trtl.forward(70)
+    trtl.pendown()
+  
+def draw_floor():
+  trtl.penup()
+  trtl.goto(-5000, int(canvas.winfo_height() / 2) - 350)
+  trtl.pendown()
+  horizontal_rect(21)
+
+def draw_wall():
+  trtl.penup()
+  trtl.goto(-5000,int(canvas.winfo_height() / 2) - 350)
+  trtl.pendown()
+  vertical_rect(10)
+
+def add_platforms():
+  trtl.penup()
+  trtl.goto(15, -45)
+  trtl.pendown()
+  trtl.right(90)
+  horizontal_rect(2)
+  trtl.penup()
+  trtl.goto(155, 30)
+  trtl.pendown()
+  horizontal_rect(2)
+
+
+
+draw_floor()
+draw_wall()
+add_platforms()
+
 #main character setting
 character = trtl.Turtle()
 character.shape('./img/character/run/right/frame_0.gif')
@@ -55,6 +142,8 @@ character.speed(0)
 character.penup()
 character.goto(-1 * width / 2 + 300, 45)
 character.hp = 20
+canvas.yview_scroll(-1 * int(canvas.winfo_height() / 20) + 4, "units")
+print(-1 * int(canvas.winfo_height() / 2))
 canvas.xview_scroll(-100000, "units")
 border = create_border()
 delay = False
@@ -99,6 +188,12 @@ def move_right():
     screen.onkeypress(move_right, 'Right')
     character_animation = 0
     """ standing() """
+    """ if (abs(character - t2 < 5)):
+      trtl.pu()
+      trtl.goto(0,0)
+      trtl. """
+        
+        
 
 
 def jump():
@@ -115,6 +210,9 @@ def jump():
             character.left(10)
             time.sleep(0.00001)
             canvas.xview_scroll(-1, "units")
+            """ if(abs(element.xcor() - character.xcor()) < 30 and abs(element.ycor() - character.ycor()) < 30):
+                if(dir == "up"): """
+            
         canvas.xview_scroll(2, "units")
         character_dir = -1
     else:
@@ -385,7 +483,7 @@ print(int(character.xcor()))
 t[0] = threading.Thread(target=create_tank, args=(-2000, 0))
 t[0].start()
 
-t[3] = threading.Thread(target=create_helicopter, args=(-2000, screen.window_height() / 2 - 200))
+t[3] = threading.Thread(target=create_helicopter, args=(-2000, screen.window_height() - 230))
 t[3].start()
 
 
@@ -451,3 +549,4 @@ def typedY():
       
 screen.listen()
 screen.mainloop()
+wn.mainloop()
