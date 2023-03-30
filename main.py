@@ -89,76 +89,84 @@ test = trtl.Turtle()
 test.goto(-1 * width / 2 + 300, 45)
 
 
-
+wall = trtl.Turtle()
+wall_info = []
 
 def horizontal_rect():
-  trtl.pendown()
-  trtl.setheading(0)
-  trtl.fillcolor(random.choice(color))
-  trtl.begin_fill()
-  trtl.forward(70)
-  trtl.right(90)
-  trtl.forward(20)
-  trtl.right(90)
-  trtl.forward(70)
-  trtl.right(90)
-  trtl.forward(20)
-  trtl.end_fill()
-  trtl.right(90)
-  trtl.penup()
-  trtl.forward(70)
-  trtl.penup()
+  wall.pendown()
+  wall.setheading(0)
+  wall.fillcolor(random.choice(color))
+  wall.begin_fill()
+  wall.forward(70)
+  wall.right(90)
+  wall.forward(20)
+  wall.right(90)
+  wall.forward(70)
+  wall.right(90)
+  wall.forward(20)
+  wall.end_fill()
+  wall.right(90)
+  wall.penup()
+  wall.forward(70)
+  wall.penup()
 
 def vertical_rect():
-  trtl.pendown()
-  trtl.setheading(90)
-  trtl.fillcolor(random.choice(color))
-  trtl.begin_fill()
-  trtl.forward(70)
-  trtl.right(90)
-  trtl.forward(20)
-  trtl.right(90)
-  trtl.forward(70)
-  trtl.right(90)
-  trtl.forward(20)
-  trtl.end_fill()
-  trtl.right(90)
-  trtl.penup()
-  trtl.forward(70)
-  trtl.penup()
+  wall.pendown()
+  wall.setheading(90)
+  wall.fillcolor(random.choice(color))
+  wall.begin_fill()
+  wall.forward(70)
+  wall.right(90)
+  wall.forward(20)
+  wall.right(90)
+  wall.forward(70)
+  wall.right(90)
+  wall.forward(20)
+  wall.end_fill()
+  wall.right(90)
+  wall.penup()
+  wall.forward(70)
+  wall.penup()
 
   
 def draw_floor():
-  trtl.penup()
-  trtl.goto(-5000, int(character.ycor() - 45))
-  trtl.pendown()
+  wall.penup()
+  wall.goto(-5000, int(character.ycor() - 45))
+  wall.pendown()
   for i in range(80):
       horizontal_rect()
 
 def draw_wall():
-  trtl.penup()
-  trtl.goto(-5000,int(character.ycor() - 45))
-  trtl.pendown()
+  wall.penup()
+  wall.goto(-5000,int(character.ycor() - 45))
+  wall.pendown()
   for i in range(10):
       vertical_rect()
 
 def add_platforms():
-  trtl.penup()
-  trtl.goto(15, -45)
-  trtl.pendown()
-  trtl.right(90)
+  global wall_n
+  wall.penup()
+  wall.goto(15, -45)
+  wall.pendown()
+  wall.right(90)
   horizontal_rect()
   horizontal_rect()
-  trtl.penup()
-  trtl.goto(155, 30)
-  trtl.pendown()
+  wall.penup()
+  wall.goto(155, 30)
+  wall.pendown()
   horizontal_rect()
   horizontal_rect()
-  while(trtl.xcor() < width):
-      trtl.forward(100)
-      trtl.sety(trtl.ycor() + 100)
-      if(random.choice([0, 0, 0, 1])):
+  wall.goto(-1 * width / 2, 100)
+  wall_n = 0
+  while(wall.xcor() < width / 2):
+      wall.forward(100)
+      block_length = random.choice([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 3])
+      while(block_length > 0):
+          wall_info.append([wall.ycor(), wall.xcor()])
           horizontal_rect()
+          wall_info[wall_n].append(wall.xcor())
+          block_length -= 1
+          wall_n += 1
 
 
 draw_floor()
@@ -199,9 +207,14 @@ def move_right():
     character.forward(20)
     character_img += 1
     character_dir = 1
-    create_gravity(border, character)
+    """ create_gravity(border, character) """
     screen.onkeypress(move_right, 'Right')
     character_animation = 0
+    for i in range(wall_n):
+        if(abs(character.xcor() - (wall_info[i][1] + wall_info[i][2]) / 2) > abs(wall_info[i][1] - wall_info[i][2]) / 2 and abs(character.ycor() - wall_info[i][0]) < 50):
+              create_gravity(border, character)
+              collide = True
+    
     """ standing() """
     """ if (abs(character - t2 < 5)):
       trtl.pu()
@@ -212,6 +225,8 @@ def move_right():
 
 
 def jump():
+    """ print(wall_info) """
+    collide = False
     screen.onkeypress(None, 'Up')
     global character_dir
     global character_animation
@@ -221,6 +236,10 @@ def jump():
         character.setheading(90)
         canvas.xview_scroll(2, "units")
         while(character.ycor() > border.ycor() + 45):
+            for i in range(wall_n):
+                if(abs(character.xcor() - (wall_info[i][1] + wall_info[i][2]) / 2) < abs(wall_info[i][1] - wall_info[i][2]) / 2 and abs(character.ycor() - wall_info[i][0]) < 10):
+                    collide = True
+                    print("collide")
             character.forward(14)
             character.left(10)
             time.sleep(0.00001)
@@ -231,10 +250,14 @@ def jump():
         canvas.xview_scroll(2, "units")
         character_dir = -1
     else:
-        character.sety(character.ycor() + 10)
+        character.sety(character.ycor())
         character.setheading(90)
         canvas.xview_scroll(-2, "units")
-        while(character.ycor() > border.ycor() + 45):
+        while(character.ycor() > border.ycor() + 40 and collide == False):
+            for i in range(wall_n):
+                if(abs(character.xcor() - (wall_info[i][1] + wall_info[i][2]) / 2) < abs(wall_info[i][1] - wall_info[i][2]) / 2 and abs(character.ycor() - wall_info[i][0]) < 45):
+                    collide = True
+                    print("collide")
             character.forward(14)
             character.right(10)
             time.sleep(0.00001)
@@ -250,7 +273,7 @@ def jump():
           character.sety(character.ycor() - 0.2)
         canvas.yview_scroll(0, "units") """
     
-    create_gravity(border, character)
+    """ create_gravity(border, character) """
     character.setheading(0)
     screen.onkeypress(jump, 'Up')
     character_animation = 0
