@@ -20,7 +20,7 @@ from border import create_border
 from gravity import create_gravity
 
 
-MAGNIFICATION = 10
+MAGNIFICATION = 1
 width = 10000
 height = 10000
 
@@ -73,13 +73,13 @@ def portal():
 #main character setting
 character = trtl.Turtle()
 character.shape('./img/character/run/right/frame_0.gif')
-character.width(MAGNIFICATION)
+""" character.width(MAGNIFICATION) """
 character.resizemode('auto')
 character.speed(0)
 character.penup()
 character.goto(-1 * width / 2 + 300, 45)
 character.hp = 20
-canvas.yview_scroll(-1 * int(canvas.winfo_height() / 20) + 4, "units")
+canvas.yview_scroll(-10 * int(canvas.winfo_height() / 20) + 40, "units")
 print(-1 * int(canvas.winfo_height() / 2))
 canvas.xview_scroll(-100000, "units")
 border = create_border()
@@ -87,6 +87,8 @@ delay = False
 
 test = trtl.Turtle()
 test.goto(-1 * width / 2 + 300, 45)
+
+
 
 
 wall = trtl.Turtle()
@@ -161,12 +163,14 @@ def add_platforms():
   while(wall.xcor() < width / 2):
       wall.forward(100)
       block_length = random.choice([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 3])
-      while(block_length > 0):
+      if(block_length > 0):
           wall_info.append([wall.ycor(), wall.xcor()])
-          horizontal_rect()
+          while(block_length > 0):
+              horizontal_rect()
+              block_length -= 1
           wall_info[wall_n].append(wall.xcor())
-          block_length -= 1
           wall_n += 1
+          
 
 
 draw_floor()
@@ -178,6 +182,8 @@ character_img = 0
 character_dir = 1
 character_animation = 0
 def move_left():
+    global collide
+    collide = False
     """ this line avoid event stacking """
     screen.onkeypress(None, 'Left')
     global character_img
@@ -185,17 +191,32 @@ def move_left():
     global character_animation
     character_animation = 1
     character.shape('./img/character/run/left/frame_' + str(character_img % 6) + '.gif')
-    canvas.xview_scroll(-2, "units")
+    canvas.xview_scroll(-20, "units")
     character.forward(-20)
     character_img += 1
     character_dir = -1
-    create_gravity(border, character)
+    """ create_gravity(border, character) """
     screen.onkeypress(move_left, 'Left')
     character_animation = 0
-    """ standing() """
+    for i in range(wall_n):
+        if(abs(character.xcor() - (wall_info[i][1] + wall_info[i][2]) / 2) <= abs(wall_info[i][1] - wall_info[i][2]) / 2 + 30):
+            collide = True
+            break
+    if(collide == False):
+        create_gravity(border, character)
+        """ create_gravity(border, character) """
+        collide = True
+    #remove elements as player moves
+    if(tanks_n > 0):
+        if(abs(tank.xcor() - character.xcor()) > canvas.winfo_width()):   
+            tank.reset()
+            tank.clear()
+        
 
 
 def move_right():
+    global collide
+    collide = False
     """ this line avoid event stacking """
     screen.onkeypress(None, 'Right')
     global character_img
@@ -203,7 +224,7 @@ def move_right():
     global character_animation
     character_animation = 1
     character.shape('./img/character/run/right/frame_' + str(character_img % 6) + '.gif')
-    canvas.xview_scroll(2, "units")
+    canvas.xview_scroll(20, "units")
     character.forward(20)
     character_img += 1
     character_dir = 1
@@ -211,15 +232,27 @@ def move_right():
     screen.onkeypress(move_right, 'Right')
     character_animation = 0
     for i in range(wall_n):
-        if(abs(character.xcor() - (wall_info[i][1] + wall_info[i][2]) / 2) > abs(wall_info[i][1] - wall_info[i][2]) / 2 and abs(character.ycor() - wall_info[i][0]) < 50):
-              create_gravity(border, character)
-              collide = True
+        if(abs(character.xcor() - (wall_info[i][1] + wall_info[i][2]) / 2) <= abs(wall_info[i][1] - wall_info[i][2]) / 2 + 30):
+            collide = True
+            break
+    if(collide == False):
+        create_gravity(border, character)
+        """ create_gravity(border, character) """
+        collide = True
     
     """ standing() """
     """ if (abs(character - t2 < 5)):
       trtl.pu()
       trtl.goto(0,0)
       trtl. """
+        #remove elements as player moves
+    if(tanks_n > 0):
+        if(character.xcor() - tank.xcor() > 300):   
+            tank.reset()
+            tank.hp = 0
+    else:
+        t[0] = threading.Thread(target=create_tank, args=(character.xcor() + canvas.winfo_width(), 0))
+        t[0].start()
         
         
 
@@ -231,38 +264,50 @@ def jump():
     global character_dir
     global character_animation
     character_animation = 1
-    if keyboard.is_pressed('Left'):
-        character.sety(character.ycor() + 10)
+    jump_angle = 90
+    if keyboard.is_pressed('Left') or character_dir == -1:
         character.setheading(90)
-        canvas.xview_scroll(2, "units")
-        while(character.ycor() > border.ycor() + 45):
-            for i in range(wall_n):
-                if(abs(character.xcor() - (wall_info[i][1] + wall_info[i][2]) / 2) < abs(wall_info[i][1] - wall_info[i][2]) / 2 and abs(character.ycor() - wall_info[i][0]) < 10):
-                    collide = True
-                    print("collide")
-            character.forward(14)
-            character.left(10)
-            time.sleep(0.00001)
-            canvas.xview_scroll(-1, "units")
-            """ if(abs(element.xcor() - character.xcor()) < 30 and abs(element.ycor() - character.ycor()) < 30):
-                if(dir == "up"): """
-            
-        canvas.xview_scroll(2, "units")
-        character_dir = -1
-    else:
-        character.sety(character.ycor())
-        character.setheading(90)
-        canvas.xview_scroll(-2, "units")
         while(character.ycor() > border.ycor() + 40 and collide == False):
             for i in range(wall_n):
-                if(abs(character.xcor() - (wall_info[i][1] + wall_info[i][2]) / 2) < abs(wall_info[i][1] - wall_info[i][2]) / 2 and abs(character.ycor() - wall_info[i][0]) < 45):
+                if(abs(character.xcor() - (wall_info[i][1] + wall_info[i][2]) / 2) < abs(wall_info[i][1] - wall_info[i][2]) / 2 + 10 and abs(character.ycor() - wall_info[i][0]) <= 20):
                     collide = True
                     print("collide")
-            character.forward(14)
-            character.right(10)
-            time.sleep(0.00001)
-            canvas.xview_scroll(1, "units")
-        canvas.xview_scroll(-2, "units")
+                    break
+            if(collide == False):
+                character.forward(14)
+                """ character.right(jump_angle) """
+                character.setheading(jump_angle)
+                time.sleep(0.0000001)
+                canvas.xview_scroll(-8, "units")
+                if(jump_angle < 250):
+                    jump_angle += 8
+
+        if(character.ycor() > wall_info[i][0]): 
+            character.sety(wall_info[i][0] + 40)
+        else:
+            create_gravity(border, character)
+        character_dir = -1
+    else:
+        character.setheading(90)
+        while(character.ycor() > border.ycor() + 40 and collide == False):
+            for i in range(wall_n):
+                if(abs(character.xcor() - (wall_info[i][1] + wall_info[i][2]) / 2) < abs(wall_info[i][1] - wall_info[i][2]) / 2 + 10 and abs(character.ycor() - wall_info[i][0]) <= 20):
+                    collide = True
+                    print("collide")
+                    break
+            if(collide == False):
+                character.forward(14)
+                """ character.right(jump_angle) """
+                character.setheading(jump_angle)
+                time.sleep(0.0000001)
+                canvas.xview_scroll(8, "units")
+                if(jump_angle > -70):
+                    jump_angle -= 8
+
+        if(character.ycor() > wall_info[i][0]): 
+            character.sety(wall_info[i][0] + 40)
+        else:
+            create_gravity(border, character)
         character_dir = 1
         
     """ else:
@@ -285,7 +330,7 @@ def create_bullet():
   bullet.penup()
   bullet.goto(character.xcor() + 20, character.ycor() + 15)
   while(character.xcor() + screen.window_width() > bullet.xcor() and not(abs(bullet.xcor() - tank.xcor()) < 20 and abs(bullet.ycor() - tank.ycor()) < 10)):
-      bullet.forward(0.4)
+      bullet.forward(1)
       if(abs(bullet.xcor() - tank.xcor()) < 30 and abs(bullet.ycor() - tank.ycor() + 40) < 10):
           tank.hp -= 10
           bullet.clear()
@@ -299,8 +344,8 @@ def shoot():
     print(canvas.xview()[1], screen.window_width(), character.xcor())
     """ this line avoid event stacking """
     global character_animation
-    global tanks_info
-    tanks_info[0][2] = "fire1"
+    """ global tanks_info
+    tanks_info[0][2] = "fire1" """
     character_animation = 1
     screen.onkeypress(None, 'space')
 
@@ -315,13 +360,7 @@ def shoot():
         for i in range(3):   
           character.shape('./img/character/fire/left/frame_'+str(i) + '.gif')
           time.sleep(0.003)
-        bullet = trtl.Turtle()
-        bullet.penup()
-        bullet.goto(character.xcor() - 20, character.ycor() + 15)
-        bullet.shape('./img/character/fire/left/bullet.gif')
-        for i in range(50):
-            bullet.forward(-20)
-            time.sleep(0.0001)
+
     time.sleep(0.1)
     standing()
     character_animation = 0
@@ -357,6 +396,10 @@ def tank_missile(x, y):
     while(missile.ycor() > 20):
         missile.forward(30)
         missile.left(5)
+        """ 
+                 missile.forward(2)
+        missile.left(0.2)
+           """
         if(missile.heading() > 180):
             missile.shape('./img/tank/fire1/missile2.gif')
         time.sleep(0.001)
@@ -394,9 +437,10 @@ def create_tank(x, y):
     global tank
     tanks_n += 1
     tank = trtl.Turtle()
-    tank.hp = 30
     tank.penup()
     tank.goto(x, y + 100)
+    print("tank cor: ",tank.xcor(), tank.ycor())
+    tank.hp = 30
     tank.shape('./img/tank/moving/left/frame_0_delay-0.1s.gif')
     tanks_info.append([180, 1, "move"])
     tank.resizemode('auto')
@@ -414,17 +458,20 @@ def create_tank(x, y):
             if(i % 17 == 3):
                 t[2] = threading.Thread(target=tank_bullet, args=(tank.xcor(), tank.ycor()))
                 t[2].start()
+                time.sleep(0.5)
             elif(i % 17 == 10):
                 t[2] = threading.Thread(target=tank_missile, args=(tank.xcor(), tank.ycor()))
                 t[2].start()
+                time.sleep(0.5)
         elif(tank.hp <= 0):
             tank.sety(tank.ycor() + 50)
             for j in range(43):
                 tank.shape('./img/tank/destroyed/left/frame_'+str(j) + '_delay-0.1s.gif')
-                time.sleep(0.05)
+                time.sleep(0.03)
             tank.clear()
             tank.reset()
-            break
+            tanks_n -= 1
+            return 0
         i+=1
 
 
@@ -439,13 +486,20 @@ def helicopters_missile(x, y):
     missile.goto(x, y)
     missile.shape('./img/tank/fire1/missile1.gif')
     missile.setheading(270)
-    while(missile.ycor() >= 0):
-        missile.forward(30)
+    collide = False
+    while(missile.ycor() >= 0 and collide == False):
+        for i in range(wall_n):
+          if(abs(missile.xcor() - (wall_info[i][1] + wall_info[i][2]) / 2) < abs(wall_info[i][1] - wall_info[i][2]) / 2 + 10 and abs(missile.ycor() - wall_info[i][0]) <= 70):
+              collide = True
+              print("collide")
+              break
+        if(collide == False):
+            missile.forward(30)
         time.sleep(0.001)
     for i in range(10):
         missile.shape('./img/tank/fire1/explode/frame_'+str(i % 10) + '.gif')
         time.sleep(0.01)
-    if(missile.xcor() - 100 < character.xcor() < missile.xcor() + 100):
+    if(abs(missile.xcor() - character.xcor()) < 50 and abs(missile.ycor() - character.ycor()) < 80):
         print("hit missile")
         character.hp -= 10
         if(character.hp <= 0):
@@ -479,7 +533,7 @@ def create_helicopter(x, y):
 
 
     while(True):
-        if(abs(character.xcor() - helicopter.xcor()) > 100 and helicopter.hp > 0):
+        if(abs(character.xcor() - helicopter.xcor()) > 50 and helicopter.hp > 0):
             if((character.xcor() - helicopter.xcor()) >= 0):
                 helicopter.shape('./img/helicopter/moving/right/frame_'+str(i % 12) + '_delay-0.1s.gif')
                 helicopter.forward(-20)
@@ -494,12 +548,12 @@ def create_helicopter(x, y):
                 helicopter.shape('./img/helicopter/fire/right/frame_'+str(i % 6) + '_delay-0.1s.gif')
             else:
                 helicopter.shape('./img/helicopter/fire/left/frame_'+str(i % 6) + '_delay-0.1s.gif')
-            time.sleep(0.12)
+            time.sleep(0.2)
             if(i % 6 == 3):
                 t[2] = threading.Thread(target=helicopters_missile, args=(helicopter.xcor(), helicopter.ycor()))
                 t[2].start()
         elif(helicopter.hp <= 0):
-            for j in range(43):
+            for j in range(11):
                 helicopter.shape('./img/helicopter/destroyed/frame_'+str(j) + '_delay-0.1s.gif')
                 time.sleep(0.05)
             helicopter.clear()
@@ -518,8 +572,8 @@ def create_helicopter(x, y):
     screen.onkeypress(None, "y")
 t = [0, 0, 0, 0]
 print(int(character.xcor()))
-t[0] = threading.Thread(target=create_tank, args=(-2000, 0))
-t[0].start()
+""" t[0] = threading.Thread(target=create_tank, args=(-2000, 0))
+t[0].start() """
 
 t[3] = threading.Thread(target=create_helicopter, args=(-2000, screen.window_height() - 230))
 t[3].start()
