@@ -19,6 +19,15 @@ sys.setswitchinterval(0.001)
 from border import create_border
 from gravity import create_gravity
 
+background1 = 'blue.gif'
+background2 = 'green.gif'
+background3 = 'black.gif'
+background4 = 'yellow.gif'
+
+#this list makes different background each time program runs
+background = [background1, background2, background3, background4]
+
+random_background = random.choice(background)
 
 MAGNIFICATION = 1
 width = 20000
@@ -53,7 +62,7 @@ full_file_paths = get_filepaths("./img")
 for i in range (len(full_file_paths)):
   screen.addshape(full_file_paths[i].replace('\\', '/'))
 
-screen.bgpic("./img/background/black.gif")
+screen.bgpic("./img/background/"+random_background)
 trtl.pencolor("black")
 trtl.speed(0)
 color = ["purple", "blue", "black"]
