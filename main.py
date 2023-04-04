@@ -21,11 +21,12 @@ from gravity import create_gravity
 
 
 MAGNIFICATION = 1
-width = 10000
+width = 20000
 height = 10000
 
 screen = trtl.Screen()
 screen.screensize(width, height)
+""" screen.bgcolor("orange") """
 
 trtl.delay(0)
 canvas = screen.getcanvas()
@@ -52,24 +53,24 @@ full_file_paths = get_filepaths("./img")
 for i in range (len(full_file_paths)):
   screen.addshape(full_file_paths[i].replace('\\', '/'))
 
-
+screen.bgpic("./img/background/black.gif")
 trtl.pencolor("black")
 trtl.speed(0)
 color = ["purple", "blue", "black"]
 
 
 #portal function
-def portal():
+def portal(size, x, y):
 #portal gif
   global t2
   t2 = trtl.Turtle()
-  wn.addshape("portal.gif")
-  t2.shape("portal.gif")
+  t2.shape("./img/background/portal.gif")
+  t2.shapesize(size)
   t2.pu()
-  t2.goto(120, 80)
+  t2.goto(x, y)
 
 
-
+portal(100, width / 2 - 200, 50)
 #main character setting
 character = trtl.Turtle()
 character.shape('./img/character/run/right/frame_0.gif')
@@ -85,9 +86,9 @@ canvas.xview_scroll(-100000, "units")
 border = create_border()
 delay = False
 
-test = trtl.Turtle()
+""" test = trtl.Turtle()
 test.goto(-1 * width / 2 + 300, 45)
-
+ """
 
 
 
@@ -133,14 +134,14 @@ def vertical_rect():
   
 def draw_floor():
   wall.penup()
-  wall.goto(-5000, int(character.ycor() - 45))
+  wall.goto(width / 2 * -1, int(character.ycor() - 45))
   wall.pendown()
-  for i in range(80):
+  while(wall.xcor() < width / 2):
       horizontal_rect()
 
 def draw_wall():
   wall.penup()
-  wall.goto(-5000,int(character.ycor() - 45))
+  wall.goto(width / 2 * -1,int(character.ycor() - 45))
   wall.pendown()
   for i in range(10):
       vertical_rect()
@@ -247,7 +248,7 @@ def move_right():
       trtl. """
         #remove elements as player moves
     if(tanks_n > 0):
-        if(character.xcor() - tank.xcor() > 300):   
+        if(character.xcor() - tank.xcor() > 600):   
             tank.reset()
             tank.hp = 0
     else:
@@ -411,6 +412,12 @@ def tank_missile(x, y):
         character.hp -= 10
         if(character.hp <= 0):
             character.shape("./img/character/dead/ghost.gif")
+            screen.onkeypress(None, "Left")
+            screen.onkeypress(None, "Right")
+            screen.onkeypress(None, "Up")
+            screen.onkeypress(None,"space")
+            screen.onkeyrelease(None, "Right")
+            screen.onkeyrelease(None, "Left")
     missile.clear()
     missile.reset()
 
@@ -425,11 +432,21 @@ def tank_bullet(x, y):
   while(True):
       if(abs(character.xcor() - tank_bullet.xcor()) < 30 and abs(character.ycor() - tank_bullet.ycor() + 20) < 30):
           print("hit", tank_bullet.ycor(), character.ycor())
+          character.hp -= 5
           tank_bullet.clear()
           tank_bullet.reset()
+          if(character.hp <= 0):
+            character.shape("./img/character/dead/ghost.gif")
+            screen.onkeypress(None, "Left")
+            screen.onkeypress(None, "Right")
+            screen.onkeypress(None, "Up")
+            screen.onkeypress(None,"space")
+            screen.onkeyrelease(None, "Right")
+            screen.onkeyrelease(None, "Left")
+
           break
       tank_bullet.forward(15)
-      time.sleep(0.01)
+      time.sleep(0.007)
 
 def create_tank(x, y):
     global tanks_n
@@ -504,6 +521,12 @@ def helicopters_missile(x, y):
         character.hp -= 10
         if(character.hp <= 0):
             character.shape("./img/character/dead/ghost.gif")
+            screen.onkeypress(None, "Left")
+            screen.onkeypress(None, "Right")
+            screen.onkeypress(None, "Up")
+            screen.onkeypress(None,"space")
+            screen.onkeyrelease(None, "Right")
+            screen.onkeyrelease(None, "Left")
     missile.clear()
     missile.reset()
 
@@ -575,7 +598,7 @@ print(int(character.xcor()))
 """ t[0] = threading.Thread(target=create_tank, args=(-2000, 0))
 t[0].start() """
 
-t[3] = threading.Thread(target=create_helicopter, args=(-2000, screen.window_height() - 230))
+t[3] = threading.Thread(target=create_helicopter, args=(character.xcor() + screen.window_width()+100, screen.window_height() - 230))
 t[3].start()
 
 
