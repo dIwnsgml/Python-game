@@ -191,6 +191,20 @@ add_platforms()
 character_img = 0
 character_dir = 1
 character_animation = 0
+def makeheart():
+  trtl.penup()
+  trtl.fillcolor("red")
+  trtl.begin_fill()
+  trtl.left(134)
+  trtl.circle(-10, 180)
+  trtl.right(80)
+  trtl.circle(10, -180)
+  trtl.left(165)
+  trtl.forward(16)
+  trtl.right(60)
+  trtl.forward(18)
+  trtl.end_fill()
+
 def move_left():
     global collide
     collide = False
@@ -263,6 +277,16 @@ def move_right():
     else:
         t[0] = threading.Thread(target=create_tank, args=(character.xcor() + canvas.winfo_width(), 0))
         t[0].start()
+    if (abs(character.xcor() - t2.xcor()) < 5):
+      trtl.penup()
+      trtl.goto(character.xcor(), character.ycor())
+      trtl.write("Game Completed", False, align="center", font=('Arial', 40, 'normal'))
+      screen.onkeypress(None, "Left")
+      screen.onkeypress(None, "Right")
+      screen.onkeypress(None, "Up")
+      screen.onkeypress(None,"space")
+      screen.onkeyrelease(None, "Right")
+      screen.onkeyrelease(None, "Left")
         
         
 
@@ -333,6 +357,16 @@ def jump():
     screen.onkeypress(jump, 'Up')
     character_animation = 0
     """ standing() """
+    if (abs(character.xcor() - t2.xcor()) < 5):
+      trtl.penup()
+      trtl.goto(character.xcor(), character.ycor())
+      trtl.write("Game Completed", False, align="center", font=('Arial', 40, 'normal'))
+      screen.onkeypress(None, "Left")
+      screen.onkeypress(None, "Right")
+      screen.onkeypress(None, "Up")
+      screen.onkeypress(None,"space")
+      screen.onkeyrelease(None, "Right")
+      screen.onkeyrelease(None, "Left")
 
 def create_bullet():
   bullet = trtl.Turtle()
@@ -484,11 +518,9 @@ def create_tank(x, y):
             if(i % 17 == 3):
                 t[2] = threading.Thread(target=tank_bullet, args=(tank.xcor(), tank.ycor()))
                 t[2].start()
-                time.sleep(0.5)
             elif(i % 17 == 10):
                 t[2] = threading.Thread(target=tank_missile, args=(tank.xcor(), tank.ycor()))
                 t[2].start()
-                time.sleep(0.5)
         elif(tank.hp <= 0):
             tank.sety(tank.ycor() + 50)
             for j in range(43):
