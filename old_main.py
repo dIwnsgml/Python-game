@@ -6,30 +6,46 @@ import time
 import threading
 import os
 
-from wall import sqaure_drawer, draw_floor
 
 wn = trtl.Screen()
 
-MAGNIFICATION = 1
+""" portal() """
 
+
+""" sys.setrecursionlimit(100000) """
+MAGNIFICATION = 1
 width = 20000
 height = 10000
 
 screen = trtl.Screen()
 screen.screensize(width, height)
+""" screen.bgcolor("orange") """
 
 trtl.delay(0)
 trtl.hideturtle()
-
 canvas = screen.getcanvas()
 canvas.config(xscrollincrement=str(MAGNIFICATION))
 canvas.config(yscrollincrement=str(MAGNIFICATION))
 trtl.setup(width=1.0, height=1.0)
-
+#screen setting
 sys.setrecursionlimit(100)
 sys.setswitchinterval(0.001)
+from border import create_border
+from gravity import create_gravity
+from wall import sqaure_drawer, draw_floor
 
 
+background1 = 'blue.gif'
+background2 = 'green.gif'
+background3 = 'black.gif'
+background4 = 'yellow.gif'
+
+#this list makes different background each time program runs
+background = [background1, background2, background3, background4]
+
+random_background = random.choice(background)
+
+""" canvas.place(relx=0, rely=0, width=screen.window_width(), height = screen.window_height()) """
 
 def get_filepaths(directory):
     file_paths = []  # List which will store all of the full filepaths.
@@ -49,51 +65,13 @@ full_file_paths = get_filepaths("./img")
 for i in range (len(full_file_paths)):
   screen.addshape(full_file_paths[i].replace('\\', '/'))
 
-#main character setting
-character = trtl.Turtle()
-character.shape('./img/character/run/right/frame_0.gif')
-""" character.width(MAGNIFICATION) """
-character.resizemode('auto')
-character.speed(0)
-character.penup()
-character.goto(-1 * width / 2 + 300, 45)
-character.hp = 50
-canvas.yview_scroll(-10 * int(canvas.winfo_height() / 20) + 200, "units")
-print(-1 * int(canvas.winfo_height() / 2))
-canvas.xview_scroll(-100000, "units")
-
-delay = False
-
-score = 0
-
-floor_info = draw_floor(width / 2 * -1, 0, width / 2)
-
-""" test = trtl.Turtle()
-test.goto(-1 * width / 2 + 300, 45)
- """
+""" screen.bgpic("./img/background/"+random_background) """
+trtl.pencolor("black")
+trtl.speed(0)
+color = ["purple", "blue", "black"]
 
 
-
-wall = trtl.Turtle()
-wall_info = []
-        
-
-
-
-character_img = 0
-character_dir = 1
-character_animation = 0
-
-def freeze():
-    screen.onkeypress(None, "Left")
-    screen.onkeypress(None, "Right")
-    screen.onkeypress(None, "Up")
-    screen.onkeypress(None,"space")
-    screen.onkeyrelease(None, "Right")
-    screen.onkeyrelease(None, "Left")
-stuck = False
-collide = False
-stuck_location = 0
+#portal function
 def portal(size, x, y):
 #portal gif
   global t2
@@ -105,78 +83,138 @@ def portal(size, x, y):
 
 
 portal(100, width / 2 - 200, 50)
-""" heart = trtl.Turtle()
-def makeheart():
-  heart.fillcolor("red")
-  heart.begin_poly()
-  heart.begin_fill()
-  heart.left(134)
-  heart.circle(-10, 180)
-  heart.right(80)
-  heart.circle(10, -180)
-  heart.left(165)
-  heart.forward(16)
-  heart.right(60)
-  heart.forward(18)
-  heart.end_fill()
-  heart.end_poly()
-  heart.penup()
-heart.penup()
-heart.goto(character.xcor(), character.ycor() + 50) 
-heart.pendown()
-makeheart()
+#main character setting
+character = trtl.Turtle()
+character.shape('./img/character/run/right/frame_0.gif')
+""" character.width(MAGNIFICATION) """
+character.resizemode('auto')
+character.speed(0)
+character.penup()
+character.goto(-1 * width / 2 + 300, 45)
+character.hp = 100000
+canvas.yview_scroll(-10 * int(canvas.winfo_height() / 20) + 200, "units")
+print(-1 * int(canvas.winfo_height() / 2))
+canvas.xview_scroll(-100000, "units")
+border = create_border()
+delay = False
 
-for i in range(7):
-  heart.penup()
-  heart.right(158)
-  heart.forward(45)
-  heart.pendown()
-  makeheart()
 
-heart.setposition(heart.xcor(), heart.ycor() - 200)
+
+floor_info = draw_floor(width / 2 * -1, 0, width / 2)
+
+""" test = trtl.Turtle()
+test.goto(-1 * width / 2 + 300, 45)
  """
-def gravity():
-    """ trtl.Turtle().goto(character.xcor(), character.ycor())
-    trtl.Turtle().setx(floor_info[0][0][1])
-    trtl.Turtle().setx(floor_info[0][0][2]) """
-    global stuck
-    global stuck_location
-    for i in range(floor_info[1]):
-        if(abs(character.xcor()  - (floor_info[0][i][1] + floor_info[0][i][2]) / 2) <= abs(floor_info[0][i][1] - floor_info[0][i][2]) / 2):
-            stuck = True
-            stuck_location = i
-            if(floor_info[0][i][3] == -1):
-                character.sety(-40)
-            elif(floor_info[0][i][3] == -2):
-                character.sety(-120)
-            elif(floor_info[0][i][3] == -3):
-                character.sety(-120)
-                character.hp -= 10
-            elif(floor_info[0][i][3] == -4):
-                character.sety(-300)
-                character.hp -= 100000
-            break
-        else:
-            stuck = False
-          
-def stuck_collision():
-    global collide
-    global stuck_location
-    """ print(floor_info[0]) """
-    if(stuck == True):
-        if(character.xcor() + 20>= floor_info[0][stuck_location][2] and character.ycor() < 0):
-            """ character.setx(floor_info[0][stuck_location][2] - 20) """
-            collide = "right"
-            print("r")
-        elif(character.xcor() - 40 <= floor_info[0][stuck_location][1] and character.ycor() < 0):
-            """ character.setx(floor_info[0][stuck_location][1] + 90) """
-            collide = "left"
-        else:
-            collide = False
 
+
+
+wall = trtl.Turtle()
+wall_info = []
+
+def horizontal_rect():
+  wall.pendown()
+  wall.setheading(0)
+  wall.fillcolor(random.choice(color))
+  wall.begin_fill()
+  wall.forward(70)
+  wall.right(90)
+  wall.forward(20)
+  wall.right(90)
+  wall.forward(70)
+  wall.right(90)
+  wall.forward(20)
+  wall.end_fill()
+  wall.right(90)
+  wall.penup()
+  wall.forward(70)
+  wall.penup()
+
+def vertical_rect():
+  wall.pendown()
+  wall.setheading(90)
+  wall.fillcolor(random.choice(color))
+  wall.begin_fill()
+  wall.forward(70)
+  wall.right(90)
+  wall.forward(20)
+  wall.right(90)
+  wall.forward(70)
+  wall.right(90)
+  wall.forward(20)
+  wall.end_fill()
+  wall.right(90)
+  wall.penup()
+  wall.forward(70)
+  wall.penup()
+
+  
+def draw_floor():
+  wall.penup()
+  wall.goto(width / 2 * -1, int(character.ycor() - 45))
+  wall.pendown()
+  while(wall.xcor() < width / 2):
+      horizontal_rect()
+
+def draw_wall():
+  wall.penup()
+  wall.goto(width / 2 * -1,int(character.ycor() - 45))
+  wall.pendown()
+  for i in range(10):
+      vertical_rect()
+
+def add_platforms():
+  global wall_n
+  wall.penup()
+  wall.goto(15, -45)
+  wall.pendown()
+  wall.right(90)
+  horizontal_rect()
+  horizontal_rect()
+  wall.penup()
+  wall.goto(155, 30)
+  wall.pendown()
+  horizontal_rect()
+  horizontal_rect()
+  wall.goto(-1 * width / 2, 100)
+  wall_n = 0
+  while(wall.xcor() < width / 2):
+      wall.forward(100)
+      block_length = random.choice([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 3])
+      if(block_length > 0):
+          wall_info.append([wall.ycor(), wall.xcor()])
+          while(block_length > 0):
+              horizontal_rect()
+              block_length -= 1
+          wall_info[wall_n].append(wall.xcor())
+          wall_n += 1
+          
+
+
+""" draw_floor() """
+draw_wall()
+add_platforms()
+
+
+character_img = 0
+character_dir = 1
+character_animation = 0
+def makeheart():
+  trtl.penup()
+  trtl.fillcolor("red")
+  trtl.begin_fill()
+  trtl.left(134)
+  trtl.circle(-10, 180)
+  trtl.right(80)
+  trtl.circle(10, -180)
+  trtl.left(165)
+  trtl.forward(16)
+  trtl.right(60)
+  trtl.forward(18)
+  trtl.end_fill()
 
 def move_left():
     global collide
+    collide = False
     """ this line avoid event stacking """
     screen.onkeypress(None, 'Left')
     global character_img
@@ -184,20 +222,34 @@ def move_left():
     global character_animation
     character_animation = 1
     character.shape('./img/character/run/left/frame_' + str(character_img % 6) + '.gif')
-    gravity()
-    stuck_collision()
-    if(collide != "left"):
-        canvas.xview_scroll(-20, "units")
-        character.forward(-20)
+    canvas.xview_scroll(-20, "units")
+    character.forward(-20)
     character_img += 1
     character_dir = -1
+    """ create_gravity(border, character) """
     screen.onkeypress(move_left, 'Left')
     character_animation = 0
+    for i in range(wall_n):
+        if(abs(character.xcor() - (wall_info[i][1] + wall_info[i][2]) / 2) <= abs(wall_info[i][1] - wall_info[i][2]) / 2 + 30):
+            collide = True
+            break
+    if(collide == False):
+        create_gravity(border, character)
+        """ create_gravity(border, character) """
+        collide = True
+    #remove elements as player moves
+    if(tanks_n > 0):
+        if(abs(tank.xcor() - character.xcor()) > canvas.winfo_width()):   
+            tank.reset()
+            tank.clear()
         
 
 
 def move_right():
     global collide
+    global fall
+    collide = False
+    fall = False
     """ this line avoid event stacking """
     screen.onkeypress(None, 'Right')
     global character_img
@@ -205,15 +257,32 @@ def move_right():
     global character_animation
     character_animation = 1
     character.shape('./img/character/run/right/frame_' + str(character_img % 6) + '.gif')
-    gravity()
-    stuck_collision()
-    if(collide != "right"):
-        canvas.xview_scroll(20, "units")
-        character.forward(20)
+    canvas.xview_scroll(20, "units")
+    character.forward(20)
     character_img += 1
     character_dir = 1
+    """ create_gravity(border, character) """
     screen.onkeypress(move_right, 'Right')
     character_animation = 0
+    for i in range(wall_n):
+        if(abs(character.xcor() - (wall_info[i][1] + wall_info[i][2]) / 2) <= abs(wall_info[i][1] - wall_info[i][2]) / 2 + 30):
+            collide = True
+            break
+    if(collide == False):
+        create_gravity(border, character)
+        """ create_gravity(border, character) """
+        collide = True
+
+
+    for i in range(floor_info[1]):
+        if(abs(character.xcor() - (floor_info[0][i][1] + floor_info[0][i][2]) / 2) <= abs(floor_info[0][i][1] - floor_info[0][i][2]) / 2 + 30):
+            fall = True
+            break
+    if(fall == False):
+        print("asfsdsf")
+        create_gravity(border, character)
+        collide = True
+        #remove elements as player moves
     if(tanks_n > 0):
         if(character.xcor() - tank.xcor() > 600):   
             tank.reset()
@@ -221,82 +290,96 @@ def move_right():
     else:
         t[0] = threading.Thread(target=create_tank, args=(character.xcor() + canvas.winfo_width(), 0))
         t[0].start()
-        score += 30
+    if (abs(character.xcor() - t2.xcor()) < 5):
+      trtl.penup()
+      trtl.goto(character.xcor(), character.ycor())
+      trtl.write("Game Completed", False, align="center", font=('Arial', 40, 'normal'))
+      screen.onkeypress(None, "Left")
+      screen.onkeypress(None, "Right")
+      screen.onkeypress(None, "Up")
+      screen.onkeypress(None,"space")
+      screen.onkeyrelease(None, "Right")
+      screen.onkeyrelease(None, "Left")
+        
+        
 
-    if(helicopters_n <= 0):
-        t[3] = threading.Thread(target=create_helicopter, args=(character.xcor() + screen.window_width()+100, screen.window_height() - 500))
-        t[3].start()
-        score += 40
 
 def jump():
-    global collide
-    global stuck
+    """ print(wall_info) """
     collide = False
     screen.onkeypress(None, 'Up')
     global character_dir
     global character_animation
-    fall = True
-    destination_y = character.ycor()
     character_animation = 1
     jump_angle = 90
-    character.setheading(jump_angle)
     if keyboard.is_pressed('Left') or character_dir == -1:
-        while(character.ycor() >= destination_y and collide == False):
-            character.forward(20)
-            """ character.right(jump_angle) """
-            character.setheading(jump_angle)
-            time.sleep(0.0000001)
-            canvas.xview_scroll(-8, "units")
-            if(jump_angle < 250):
-                jump_angle += 8
-            if(stuck == True):           
-                stuck_collision()
-                if(character.ycor() > 0 and character.xcor() <= floor_info[0][stuck_location][1]):
-                    fall = False
-                    print("es")
-                    character.sety(45)
-                    character.setheading(0)
-                    stuck = False
+        character.setheading(90)
+        while(character.ycor() > border.ycor() + 40 and collide == False):
+            for i in range(wall_n):
+                if(abs(character.xcor() - (wall_info[i][1] + wall_info[i][2]) / 2) < abs(wall_info[i][1] - wall_info[i][2]) / 2 + 10 and abs(character.ycor() - wall_info[i][0]) <= 20):
+                    collide = True
+                    print("collide")
                     break
-        if fall == True:
-            character.sety(destination_y)
+            if(collide == False):
+                character.forward(14)
+                """ character.right(jump_angle) """
+                character.setheading(jump_angle)
+                time.sleep(0.0000001)
+                canvas.xview_scroll(-8, "units")
+                if(jump_angle < 250):
+                    jump_angle += 8
+
+        if(character.ycor() > wall_info[i][0]): 
+            character.sety(wall_info[i][0] + 40)
+        else:
+            create_gravity(border, character)
         character_dir = -1
-        """ character.setheading(jump_angle)
-        while(character.ycor() > wall.ycor() + 40 and collide == False):
-            character.forward(20)
-            character.setheading(jump_angle)
-            time.sleep(0.0000001)
-            canvas.xview_scroll(-8, "units")
-            if(jump_angle < 250):
-                jump_angle += 8
-        character_dir = -1 """
     else:
-        while(character.ycor() >= destination_y and collide == False):
-            character.forward(20)
-            """ character.right(jump_angle) """
-            character.setheading(jump_angle)
-            time.sleep(0.0000001)
-            canvas.xview_scroll(8, "units")
-            if(jump_angle > -70):
-                jump_angle -= 8
-            if(stuck == True):           
-                stuck_collision()
-                if(character.ycor() > 0 and character.xcor() >= floor_info[0][stuck_location][2]):
-                    fall = False
-                    print("es")
-                    character.sety(45)
-                    character.setheading(0)
-                    stuck = False
+        character.setheading(90)
+        while(character.ycor() > border.ycor() + 40 and collide == False):
+            for i in range(wall_n):
+                if(abs(character.xcor() - (wall_info[i][1] + wall_info[i][2]) / 2) < abs(wall_info[i][1] - wall_info[i][2]) / 2 + 10 and abs(character.ycor() - wall_info[i][0]) <= 20):
+                    collide = True
+                    print("collide")
                     break
-        if fall == True:
-            character.sety(destination_y)
+            if(collide == False):
+                character.forward(14)
+                """ character.right(jump_angle) """
+                character.setheading(jump_angle)
+                time.sleep(0.0000001)
+                canvas.xview_scroll(8, "units")
+                if(jump_angle > -70):
+                    jump_angle -= 8
+
+        if(character.ycor() > wall_info[i][0]): 
+            character.sety(wall_info[i][0] + 40)
+        else:
+            create_gravity(border, character)
         character_dir = 1
+        
+    """ else:
+        print("x")
+        while(character.ycor() < 160):
+          character.sety(character.ycor() + 0.2)
+        while(character.ycor() > 45):
+          character.sety(character.ycor() - 0.2)
+        canvas.yview_scroll(0, "units") """
+    
+    """ create_gravity(border, character) """
     character.setheading(0)
-    if fall == True:
-        gravity()
     screen.onkeypress(jump, 'Up')
     character_animation = 0
     """ standing() """
+    if (abs(character.xcor() - t2.xcor()) < 5):
+      trtl.penup()
+      trtl.goto(character.xcor(), character.ycor())
+      trtl.write("Game Completed", False, align="center", font=('Arial', 40, 'normal'))
+      screen.onkeypress(None, "Left")
+      screen.onkeypress(None, "Right")
+      screen.onkeypress(None, "Up")
+      screen.onkeypress(None,"space")
+      screen.onkeyrelease(None, "Right")
+      screen.onkeyrelease(None, "Left")
 
 def create_bullet():
   bullet = trtl.Turtle()
@@ -353,6 +436,7 @@ def standing():
       character.shape('./img/character/standing/left/frame_'+str(i % 6) + '.gif')
     time.sleep(0.2)
     i += 1 """
+  print('test')
   if(character_dir == 1):
       character.shape('./img/character/standing/right/frame_'+str(0) + '.gif')
   else:
@@ -384,10 +468,12 @@ def tank_missile(x, y):
         character.hp -= 10
         if(character.hp <= 0):
             character.shape("./img/character/dead/ghost.gif")
-            trtl.penup()
-            trtl.goto(character.xcor(), character.ycor() + 100)
-            trtl.write(score, move=False,font=("Arial", 80, "normal")) 
-            freeze()
+            screen.onkeypress(None, "Left")
+            screen.onkeypress(None, "Right")
+            screen.onkeypress(None, "Up")
+            screen.onkeypress(None,"space")
+            screen.onkeyrelease(None, "Right")
+            screen.onkeyrelease(None, "Left")
     missile.clear()
     missile.reset()
 
@@ -413,9 +499,6 @@ def tank_bullet(x, y):
             screen.onkeypress(None,"space")
             screen.onkeyrelease(None, "Right")
             screen.onkeyrelease(None, "Left")
-            trtl.penup()
-            trtl.goto(character.xcor(), character.ycor() + 100)
-            trtl.write(score, move=False,font=("Arial", 80, "normal")) 
 
           break
       tank_bullet.forward(30)
@@ -476,7 +559,13 @@ def helicopters_missile(x, y):
     missile.setheading(270)
     collide = False
     while(missile.ycor() >= 0 and collide == False):
-        missile.forward(30)
+        for i in range(wall_n):
+          if(abs(missile.xcor() - (wall_info[i][1] + wall_info[i][2]) / 2) < abs(wall_info[i][1] - wall_info[i][2]) / 2 + 10 and abs(missile.ycor() - wall_info[i][0]) <= 70):
+              collide = True
+              print("collide")
+              break
+        if(collide == False):
+            missile.forward(30)
         time.sleep(0.001)
     for i in range(10):
         missile.shape('./img/tank/fire1/explode/frame_'+str(i % 10) + '.gif')
@@ -486,10 +575,12 @@ def helicopters_missile(x, y):
         character.hp -= 10
         if(character.hp <= 0):
             character.shape("./img/character/dead/ghost.gif")
-            trtl.penup()
-            trtl.goto(character.xcor(), character.ycor() + 100)
-            trtl.write(score, move=False,font=("Arial", 80, "normal")) 
-            freeze()
+            screen.onkeypress(None, "Left")
+            screen.onkeypress(None, "Right")
+            screen.onkeypress(None, "Up")
+            screen.onkeypress(None,"space")
+            screen.onkeyrelease(None, "Right")
+            screen.onkeyrelease(None, "Left")
     missile.clear()
     missile.reset()
 
@@ -561,8 +652,8 @@ print(int(character.xcor()))
 """ t[0] = threading.Thread(target=create_tank, args=(-2000, 0))
 t[0].start() """
 
-""" t[3] = threading.Thread(target=create_helicopter, args=(character.xcor() + screen.window_width()+100, screen.window_height() - 230))
-t[3].start() """
+t[3] = threading.Thread(target=create_helicopter, args=(character.xcor() + screen.window_width()+100, screen.window_height() - 230))
+t[3].start()
 
 
 screen.onkeypress(move_left, "Left")
