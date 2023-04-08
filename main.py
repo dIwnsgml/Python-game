@@ -29,6 +29,16 @@ trtl.setup(width=1.0, height=1.0)
 sys.setrecursionlimit(100)
 sys.setswitchinterval(0.001)
 
+background1 = 'blue.gif'
+background2 = 'green.gif'
+background3 = 'black.gif'
+background4 = 'yellow.gif'
+
+#this list makes different background each time program runs
+background = [background1, background2, background3, background4]
+
+random_background = random.choice(background)
+
 
 
 def get_filepaths(directory):
@@ -49,6 +59,7 @@ full_file_paths = get_filepaths("./img")
 for i in range (len(full_file_paths)):
   screen.addshape(full_file_paths[i].replace('\\', '/'))
 
+screen.bgpic("./img/background/"+random_background)
 #main character setting
 character = trtl.Turtle()
 character.shape('./img/character/run/right/frame_0.gif')
@@ -197,6 +208,7 @@ def move_left():
 
 
 def move_right():
+    global score
     global collide
     """ this line avoid event stacking """
     screen.onkeypress(None, 'Right')
@@ -224,7 +236,7 @@ def move_right():
         score += 30
 
     if(helicopters_n <= 0):
-        t[3] = threading.Thread(target=create_helicopter, args=(character.xcor() + screen.window_width()+100, screen.window_height() - 500))
+        t[3] = threading.Thread(target=create_helicopter, args=(character.xcor() + screen.window_width()+100, screen.window_height() - 400))
         t[3].start()
         score += 40
 
